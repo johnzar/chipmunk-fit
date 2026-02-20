@@ -40,7 +40,7 @@ class ModulePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '고급 UI 모듈 라이브러리',
+              '컴포넌트 조합 기반 UI 패턴',
               style: context.body2().copyWith(
                     color: context.fitColors.textSecondary,
                   ),
@@ -106,7 +106,7 @@ class ModulePage extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: item.iconColor.withOpacity(0.1),
+                    color: item.iconColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Icon(item.icon, color: item.iconColor, size: 20),

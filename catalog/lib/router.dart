@@ -11,7 +11,6 @@ import 'presentation/component/lottie/lottie_page.dart';
 import 'presentation/component/radio/radio_button_page.dart';
 import 'presentation/core/component/cache_helper_page.dart';
 import 'presentation/core/component/delta_viewer_page.dart';
-import 'presentation/foundation/animation/animation_page.dart';
 import 'presentation/foundation/color/color_page.dart';
 import 'presentation/foundation/textstyle/text_style_page.dart';
 import 'presentation/module/bottomsheet/bottom_sheet_page.dart';
@@ -50,12 +49,6 @@ final GoRouter catalogRouter = GoRouter(
           path: 'image',
           builder: (BuildContext context, GoRouterState state) {
             return const FitImagePage();
-          },
-        ),
-        GoRoute(
-          path: 'animation',
-          builder: (BuildContext context, GoRouterState state) {
-            return const AnimationPage();
           },
         ),
         GoRoute(

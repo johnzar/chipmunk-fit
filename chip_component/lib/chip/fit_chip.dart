@@ -118,21 +118,23 @@ class _FitChipState extends State<FitChip> {
 
     // 색상 결정 - 사용자 지정 색상 우선
     final Color backgroundColor = widget.isSelected
-        ? (widget.selectedBackgroundColor ?? theme.primaryColor.withOpacity(0.1))
+        ? (widget.selectedBackgroundColor ??
+            theme.primaryColor.withValues(alpha: 0.1))
         : (widget.backgroundColor ?? theme.chipTheme.backgroundColor ?? Colors.grey.shade200);
 
     final Color borderColor = widget.isSelected
         ? (widget.selectedBorderColor ?? theme.primaryColor)
         : (widget.borderColor ?? Colors.transparent);
 
+    // 선택 상태에서는 기본 테두리보다 약간 두껍게 보여 구분감을 높인다.
     final double borderWidth = widget.isSelected
-        ? (widget.selectedBorderWidth ?? widget.borderWidth)
+        ? (widget.selectedBorderWidth ?? (widget.borderWidth + 0.4))
         : widget.borderWidth;
 
     // disabled 상태일 때만 opacity 적용 (사용자 지정 alpha 값 보존)
     final Color effectiveBackgroundColor = _isEnabled
         ? backgroundColor
-        : backgroundColor.withOpacity(backgroundColor.opacity * 0.5);
+        : backgroundColor.withValues(alpha: backgroundColor.a * 0.5);
 
     return GestureDetector(
       onTapDown: _onTapDown,
@@ -155,7 +157,7 @@ class _FitChipState extends State<FitChip> {
             boxShadow: widget.elevation > 0
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: widget.elevation,
                       offset: Offset(0, widget.elevation / 2),
                     ),

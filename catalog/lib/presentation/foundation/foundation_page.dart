@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-/// Foundation 메인 페이지 (토스 스타일)
+/// Foundation main page
 class FoundationPage extends StatelessWidget {
   const FoundationPage({super.key});
 
@@ -16,6 +16,7 @@ class FoundationPage extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             _buildHeader(context),
+            _buildGuideSection(context),
             _buildMenuList(context),
           ],
         ),
@@ -40,12 +41,48 @@ class FoundationPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '디자인 시스템의 기본 요소',
-              style: context.body2().copyWith(
+              '디자인 시스템의 기본 토큰과 사용 기준',
+              style: context.body3().copyWith(
                     color: context.fitColors.textSecondary,
                   ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuideSection(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.fitColors.backgroundElevated,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: context.fitColors.dividerPrimary,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Foundation Guide',
+                style: context.subtitle5().copyWith(
+                      color: context.fitColors.textPrimary,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Colors와 Typography는 Light/Dark 환경에서 동일한 토큰 규칙으로 동작합니다.',
+                style: context.body4().copyWith(
+                      color: context.fitColors.textSecondary,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -57,23 +94,16 @@ class FoundationPage extends StatelessWidget {
       _MenuItem(
         icon: Icons.palette_outlined,
         iconColor: const Color(0xFF3182F6),
-        title: '컬러 시스템',
-        description: '라이트/다크 모드 색상',
+        title: 'Colors',
+        subtitle: '다크/라이트 모드의 컬러 시스템을 정의합니다.',
         route: '/color',
       ),
       _MenuItem(
         icon: Icons.text_fields_outlined,
         iconColor: const Color(0xFFF76B1C),
-        title: '타이포그래피',
-        description: '텍스트 스타일 가이드',
+        title: 'Typography',
+        subtitle: '텍스트 토큰과 FitTextSp scale 규칙을 검증합니다.',
         route: '/textstyle',
-      ),
-      _MenuItem(
-        icon: Icons.animation_outlined,
-        iconColor: const Color(0xFF9B51E0),
-        title: '애니메이션',
-        description: '모션 디자인',
-        route: '/animation',
       ),
     ];
 
@@ -94,28 +124,28 @@ class FoundationPage extends StatelessWidget {
   /// 메뉴 카드
   Widget _buildMenuCard(BuildContext context, _MenuItem menu) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       child: Material(
         color: context.fitColors.backgroundElevated,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(18.r),
         child: InkWell(
           onTap: () => context.go(menu.route),
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(18.r),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: menu.iconColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12.r),
+                    color: menu.iconColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   child: Icon(
                     menu.icon,
                     color: menu.iconColor,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -125,24 +155,32 @@ class FoundationPage extends StatelessWidget {
                     children: [
                       Text(
                         menu.title,
-                        style: context.subtitle4().copyWith(
+                        style: context.subtitle3().copyWith(
                               color: context.fitColors.textPrimary,
                             ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        menu.description,
+                        menu.subtitle,
                         style: context.body4().copyWith(
-                              color: context.fitColors.textTertiary,
+                              color: context.fitColors.textSecondary,
                             ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right,
-                  color: context.fitColors.grey400,
-                  size: 24,
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: context.fitColors.fillAlternative,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.chevron_right,
+                    color: context.fitColors.textSecondary,
+                    size: 20,
+                  ),
                 ),
               ],
             ),
@@ -158,14 +196,14 @@ class _MenuItem {
   final IconData icon;
   final Color iconColor;
   final String title;
-  final String description;
+  final String subtitle;
   final String route;
 
   const _MenuItem({
     required this.icon,
     required this.iconColor,
     required this.title,
-    required this.description,
+    required this.subtitle,
     required this.route,
   });
 }

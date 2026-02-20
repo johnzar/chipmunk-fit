@@ -1,16 +1,13 @@
-import 'package:animated_theme_switcher/animated_theme_switcher.dart';
-import 'package:chip_component/button/fit_switch_button.dart';
+import 'package:catalog/presentation/common/catalog_theme_switcher.dart';
 import 'package:chip_foundation/colors.dart';
-import 'package:chip_foundation/textstyle.dart';
-import 'package:chip_foundation/theme.dart';
 import 'package:chip_module/scaffold/fit_app_bar.dart';
 import 'package:chip_module/scaffold/fit_scaffold.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// 컬러 시스템 테스트 페이지
+import 'model/color_catalog_models.dart';
+import 'view/color_category_tabs.dart';
+import 'view/color_token_list.dart';
+
 class ColorPage extends StatefulWidget {
   const ColorPage({super.key});
 
@@ -19,71 +16,63 @@ class ColorPage extends StatefulWidget {
 }
 
 class _ColorPageState extends State<ColorPage> {
-  bool _showDarkMode = false;
-  String _selectedCategory = "Semantic"; // Semantic, Grey, Green, Blue, Red, Yellow, Brick
+  String _selectedCategory = "Semantic";
+
+  static const _categories = [
+    ColorCategoryItem(name: "Semantic", icon: Icons.palette),
+    ColorCategoryItem(name: "Static", icon: Icons.contrast),
+    ColorCategoryItem(name: "Grey", icon: Icons.gradient),
+    ColorCategoryItem(name: "Green", icon: Icons.eco),
+    ColorCategoryItem(name: "Leaf Green", icon: Icons.spa),
+    ColorCategoryItem(name: "Periwinkle", icon: Icons.water_drop),
+    ColorCategoryItem(name: "Violet", icon: Icons.auto_awesome),
+    ColorCategoryItem(name: "Red", icon: Icons.favorite),
+    ColorCategoryItem(name: "Yellow", icon: Icons.sunny),
+    ColorCategoryItem(name: "Brick", icon: Icons.square),
+    ColorCategoryItem(name: "Alpha Red", icon: Icons.circle),
+    ColorCategoryItem(name: "Alpha Blue", icon: Icons.circle),
+    ColorCategoryItem(name: "Alpha Yellow", icon: Icons.circle),
+    ColorCategoryItem(name: "Alpha Green", icon: Icons.circle),
+    ColorCategoryItem(name: "Alpha Periwinkle", icon: Icons.circle),
+    ColorCategoryItem(name: "Alpha Violet", icon: Icons.circle),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+    final palette = isDarkTheme ? darkFitColors : lightFitColors;
+    final colorItems = _colorsByCategory();
+
     return FitScaffold(
       padding: EdgeInsets.zero,
       appBar: FitLeadingAppBar(
-        title: "Color System",
-        actions: [
-          _buildThemeSwitcher(context),
-          const SizedBox(width: 16),
+        title: "Colors",
+        actions: const [
+          CatalogThemeSwitcher(),
+          SizedBox(width: 16),
         ],
       ),
       body: Column(
         children: [
-          // 상단: 수평 레이아웃 (프리뷰 영역 3 : 컨트롤 영역 2)
-          Container(
-            height: 200,
-            decoration: BoxDecoration(
-              color: context.fitColors.backgroundElevated,
-              border: Border(
-                bottom: BorderSide(
-                  color: context.fitColors.dividerPrimary,
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Row(
-              children: [
-                // 왼쪽: 미리보기 영역 (3)
-                Expanded(
-                  flex: 3,
-                  child: _buildColorPreview(context),
-                ),
-                // 오른쪽: 상태 및 컨트롤 (2)
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                          color: context.fitColors.dividerPrimary,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: _buildControlSection(context),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // 하단: 스크롤 영역 (카테고리별 컬러 리스트)
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildInfoSection(context),
+                  ColorCategoryTabs(
+                    categories: _categories,
+                    selectedCategory: _selectedCategory,
+                    onCategorySelected: (category) {
+                      setState(() => _selectedCategory = category);
+                    },
+                  ),
                   const SizedBox(height: 16),
-                  _buildCategorySelector(context),
-                  const SizedBox(height: 16),
-                  _buildColorList(context),
+                  ColorTokenList(
+                    selectedCategory: _selectedCategory,
+                    items: colorItems,
+                    palette: palette,
+                  ),
                 ],
               ),
             ),
@@ -93,514 +82,220 @@ class _ColorPageState extends State<ColorPage> {
     );
   }
 
-  /// 컬러 미리보기 영역
-  Widget _buildColorPreview(BuildContext context) {
-    final colors = _getCurrentColors();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Color Preview",
-            style: context.subtitle5().copyWith(
-              color: context.fitColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // 주요 색상들을 그리드로 표시
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 4,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildPreviewColorBox(colors.main, "Main"),
-                _buildPreviewColorBox(colors.backgroundBase, "BG"),
-                _buildPreviewColorBox(colors.textPrimary, "Text1"),
-                _buildPreviewColorBox(colors.textSecondary, "Text2"),
-                _buildPreviewColorBox(colors.grey500, "Grey"),
-                _buildPreviewColorBox(colors.green500, "Green"),
-                _buildPreviewColorBox(colors.red500, "Red"),
-                _buildPreviewColorBox(colors.yellowBase, "Yellow"),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 미리보기 컬러 박스
-  Widget _buildPreviewColorBox(Color color, String label) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(
-          color: _getContrastingColor(color).withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        label,
-        style: TextStyle(
-          color: _getContrastingColor(color),
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  /// 컨트롤 섹션
-  Widget _buildControlSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Settings",
-            style: context.subtitle5().copyWith(
-              color: context.fitColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // 모드 전환
-          Row(
-            children: [
-              Icon(
-                _showDarkMode ? Icons.dark_mode : Icons.light_mode,
-                color: context.fitColors.main,
-                size: 18,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  _showDarkMode ? "Dark Mode" : "Light Mode",
-                  style: context.body4().copyWith(
-                    color: context.fitColors.textPrimary,
-                  ),
-                ),
-              ),
-              FitSwitchButton(
-                isOn: _showDarkMode,
-                onToggle: (_) => setState(() => _showDarkMode = !_showDarkMode),
-                activeColor: context.fitColors.main,
-                inactiveColor: context.fitColors.grey300,
-                debounceDuration: const Duration(milliseconds: 300),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Divider(color: context.fitColors.dividerPrimary),
-          const SizedBox(height: 12),
-          // 상태 표시
-          _buildStatusItem(
-            context,
-            "Category",
-            _selectedCategory,
-            Icons.category,
-          ),
-          const SizedBox(height: 8),
-          _buildStatusItem(
-            context,
-            "Total Colors",
-            "${_getColorsByCategory().length}",
-            Icons.palette,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 상태 아이템
-  Widget _buildStatusItem(BuildContext context, String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: context.fitColors.textTertiary),
-        const SizedBox(width: 6),
-        Text(
-          "$label:",
-          style: context.caption1().copyWith(
-            color: context.fitColors.textTertiary,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          value,
-          style: context.caption1().copyWith(
-            color: context.fitColors.main,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// 정보 섹션
-  Widget _buildInfoSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.fitColors.backgroundElevated,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: context.fitColors.dividerPrimary),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline, color: context.fitColors.main, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                "컬러 시스템 가이드",
-                style: context.subtitle5().copyWith(
-                  color: context.fitColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            "• Semantic Colors: 의미 기반 컬러 (배경, 텍스트, 구분선 등)\n"
-            "• Grey Scale: 회색 계열 (0~900)\n"
-            "• Brand Colors: 브랜드 컬러 (Green, Blue, Red, Yellow, Brick)\n"
-            "• 각 컬러를 탭하면 Hex 코드가 복사됩니다",
-            style: context.body4().copyWith(color: context.fitColors.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 카테고리 선택기
-  Widget _buildCategorySelector(BuildContext context) {
-    final categories = [
-      _CategoryItem("Semantic", Icons.palette, const Color(0xFF3182F6)),
-      _CategoryItem("Grey", Icons.gradient, const Color(0xFF6B7280)),
-      _CategoryItem("Green", Icons.eco, const Color(0xFF10B981)),
-      _CategoryItem("Blue", Icons.water_drop, const Color(0xFF3B82F6)),
-      _CategoryItem("Red", Icons.favorite, const Color(0xFFEF4444)),
-      _CategoryItem("Yellow", Icons.wb_sunny, const Color(0xFFF59E0B)),
-      _CategoryItem("Brick", Icons.square, const Color(0xFFDC2626)),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "📁 Color Categories",
-          style: context.subtitle4().copyWith(
-            color: context.fitColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: categories.map((cat) {
-            final isSelected = _selectedCategory == cat.name;
-            return GestureDetector(
-              onTap: () => setState(() => _selectedCategory = cat.name),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? cat.color.withOpacity(0.15) : context.fitColors.backgroundElevated,
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(
-                    color: isSelected ? cat.color : context.fitColors.dividerPrimary,
-                    width: isSelected ? 2 : 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      cat.icon,
-                      size: 16,
-                      color: isSelected ? cat.color : context.fitColors.textTertiary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      cat.name,
-                      style: context.body4().copyWith(
-                        color: isSelected ? cat.color : context.fitColors.textPrimary,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  /// 컬러 리스트
-  Widget _buildColorList(BuildContext context) {
-    final colors = _getColorsByCategory();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "🎨 $_selectedCategory Colors",
-          style: context.subtitle4().copyWith(
-            color: context.fitColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...colors.map((item) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _buildColorTile(context, item.name, item.color),
-        )),
-      ],
-    );
-  }
-
-  /// 카테고리별 컬러 가져오기
-  List<_ColorItem> _getColorsByCategory() {
+  List<ColorTokenItem> _colorsByCategory() {
     switch (_selectedCategory) {
       case "Semantic":
-        return _getSemanticColors();
+        return _semanticColors();
+      case "Static":
+        return _staticColors();
       case "Grey":
-        return _getGreyColors();
+        return _greyColors();
       case "Green":
-        return _getGreenColors();
-      case "Blue":
-        return _getBlueColors();
+        return _greenColors();
+      case "Leaf Green":
+        return _leafGreenColors();
+      case "Periwinkle":
+        return _periwinkleColors();
+      case "Violet":
+        return _violetColors();
       case "Red":
-        return _getRedColors();
+        return _redColors();
       case "Yellow":
-        return _getYellowColors();
+        return _yellowAlphaColors();
       case "Brick":
-        return _getBrickColors();
+        return _brickColors();
+      case "Alpha Red":
+        return _redAlphaColors();
+      case "Alpha Blue":
+        return _blueAlphaColors();
+      case "Alpha Yellow":
+        return _yellowAlphaColors();
+      case "Alpha Green":
+        return _greenAlphaColors();
+      case "Alpha Periwinkle":
+        return _periwinkleAlphaColors();
+      case "Alpha Violet":
+        return _violetAlphaColors();
       default:
-        return [];
+        return const [];
     }
   }
 
-  /// Semantic 컬러 리스트
-  List<_ColorItem> _getSemanticColors() {
-    final colors = _getCurrentColors();
+  List<ColorTokenItem> _semanticColors() {
     return [
-      _ColorItem("Main", colors.main),
-      _ColorItem("Background Base", colors.backgroundBase),
-      _ColorItem("Background Elevated", colors.backgroundElevated),
-      _ColorItem("Text Primary", colors.textPrimary),
-      _ColorItem("Text Secondary", colors.textSecondary),
-      _ColorItem("Text Tertiary", colors.textTertiary),
-      _ColorItem("Divider Primary", colors.dividerPrimary),
-      _ColorItem("Divider Secondary", colors.dividerSecondary),
-    ];
-  }
-
-
-  /// 컬러 타일
-  Widget _buildColorTile(BuildContext context, String name, Color color) {
-    final hexColor = '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
-
-    return InkWell(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: hexColor));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$hexColor 복사됨'),
-            duration: const Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(8.r),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(
-            color: context.fitColors.dividerPrimary,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: context.caption1().copyWith(
-                          color: _getContrastingColor(color),
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    hexColor,
-                    style: context.caption1().copyWith(
-                          color: _getContrastingColor(color).withOpacity(0.7),
-                          fontSize: 11,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.copy,
-              color: _getContrastingColor(color).withOpacity(0.5),
-              size: 16,
-            ),
-          ],
-        ),
+      ColorTokenItem(name: "Main", color: _currentPalette().main),
+      ColorTokenItem(name: "Sub", color: _currentPalette().sub),
+      ColorTokenItem(name: "Background Base", color: _currentPalette().backgroundBase),
+      ColorTokenItem(name: "Background Alternative", color: _currentPalette().backgroundAlternative),
+      ColorTokenItem(name: "Background Elevated", color: _currentPalette().backgroundElevated),
+      ColorTokenItem(
+        name: "Background Elevated Alternative",
+        color: _currentPalette().backgroundElevatedAlternative,
       ),
-    );
-  }
-
-  /// 대비 컬러 계산
-  Color _getContrastingColor(Color color) {
-    final brightness = color.computeLuminance();
-    return brightness > 0.5 ? Colors.black : Colors.white;
-  }
-
-  /// 현재 테마의 컬러 가져오기
-  FitColors _getCurrentColors() {
-    return _showDarkMode ? darkFitColors : lightFitColors;
-  }
-
-  /// Grey 컬러 리스트
-  List<_ColorItem> _getGreyColors() {
-    final colors = _getCurrentColors();
-    return [
-      _ColorItem("Grey 0", colors.grey0),
-      _ColorItem("Grey 50", colors.grey50),
-      _ColorItem("Grey 100", colors.grey100),
-      _ColorItem("Grey 200", colors.grey200),
-      _ColorItem("Grey 300", colors.grey300),
-      _ColorItem("Grey 400", colors.grey400),
-      _ColorItem("Grey 500", colors.grey500),
-      _ColorItem("Grey 600", colors.grey600),
-      _ColorItem("Grey 700", colors.grey700),
-      _ColorItem("Grey 800", colors.grey800),
-      _ColorItem("Grey 900", colors.grey900),
+      ColorTokenItem(name: "Text Primary", color: _currentPalette().textPrimary),
+      ColorTokenItem(name: "Text Secondary", color: _currentPalette().textSecondary),
+      ColorTokenItem(name: "Text Tertiary", color: _currentPalette().textTertiary),
+      ColorTokenItem(name: "Text Disabled", color: _currentPalette().textDisabled),
+      ColorTokenItem(name: "Fill Base", color: _currentPalette().fillBase),
+      ColorTokenItem(name: "Fill Alternative", color: _currentPalette().fillAlternative),
+      ColorTokenItem(name: "Fill Strong", color: _currentPalette().fillStrong),
+      ColorTokenItem(name: "Fill Emphasize", color: _currentPalette().fillEmphasize),
+      ColorTokenItem(name: "Divider Primary", color: _currentPalette().dividerPrimary),
+      ColorTokenItem(name: "Divider Secondary", color: _currentPalette().dividerSecondary),
+      ColorTokenItem(name: "Inverse Background", color: _currentPalette().inverseBackground),
+      ColorTokenItem(name: "Inverse Text", color: _currentPalette().inverseText),
+      ColorTokenItem(name: "Inverse Disabled", color: _currentPalette().inverseDisabled),
+      ColorTokenItem(name: "Dim Background", color: _currentPalette().dimBackground),
+      ColorTokenItem(name: "Dim Overlay", color: _currentPalette().dimOverlay),
+      ColorTokenItem(name: "Dim Card", color: _currentPalette().dimCard),
     ];
   }
 
-  /// Green 컬러 리스트
-  List<_ColorItem> _getGreenColors() {
-    final colors = _getCurrentColors();
+  List<ColorTokenItem> _staticColors() {
     return [
-      _ColorItem("Green 50", colors.green50),
-      _ColorItem("Green 200", colors.green200),
-      _ColorItem("Green 500", colors.green500),
-      _ColorItem("Green 600", colors.green600),
-      _ColorItem("Green 700", colors.green700),
-      _ColorItem("Green Base", colors.greenBase),
-      _ColorItem("Green Alpha 72", colors.greenAlpha72),
-      _ColorItem("Green Alpha 48", colors.greenAlpha48),
-      _ColorItem("Green Alpha 24", colors.greenAlpha24),
-      _ColorItem("Green Alpha 12", colors.greenAlpha12),
+      ColorTokenItem(name: "Static Black", color: _currentPalette().staticBlack),
+      ColorTokenItem(name: "Static White", color: _currentPalette().staticWhite),
     ];
   }
 
-  /// Blue 컬러 리스트
-  List<_ColorItem> _getBlueColors() {
-    final colors = _getCurrentColors();
+  List<ColorTokenItem> _greyColors() {
     return [
-      _ColorItem("Blue Alpha 72", colors.blueAlpha72),
-      _ColorItem("Blue Alpha 48", colors.blueAlpha48),
-      _ColorItem("Blue Alpha 24", colors.blueAlpha24),
-      _ColorItem("Blue Alpha 12", colors.blueAlpha12),
+      ColorTokenItem(name: "Grey 0", color: _currentPalette().grey0),
+      ColorTokenItem(name: "Grey 50", color: _currentPalette().grey50),
+      ColorTokenItem(name: "Grey 100", color: _currentPalette().grey100),
+      ColorTokenItem(name: "Grey 200", color: _currentPalette().grey200),
+      ColorTokenItem(name: "Grey 300", color: _currentPalette().grey300),
+      ColorTokenItem(name: "Grey 400", color: _currentPalette().grey400),
+      ColorTokenItem(name: "Grey 500", color: _currentPalette().grey500),
+      ColorTokenItem(name: "Grey 600", color: _currentPalette().grey600),
+      ColorTokenItem(name: "Grey 700", color: _currentPalette().grey700),
+      ColorTokenItem(name: "Grey 800", color: _currentPalette().grey800),
+      ColorTokenItem(name: "Grey 900", color: _currentPalette().grey900),
     ];
   }
 
-  /// Red 컬러 리스트
-  List<_ColorItem> _getRedColors() {
-    final colors = _getCurrentColors();
+  List<ColorTokenItem> _greenColors() {
     return [
-      _ColorItem("Red 50", colors.red50),
-      _ColorItem("Red 200", colors.red200),
-      _ColorItem("Red 500", colors.red500),
-      _ColorItem("Red 600", colors.red600),
-      _ColorItem("Red 700", colors.red700),
-      _ColorItem("Red Base", colors.redBase),
-      _ColorItem("Red Alpha 72", colors.redAlpha72),
-      _ColorItem("Red Alpha 48", colors.redAlpha48),
-      _ColorItem("Red Alpha 24", colors.redAlpha24),
-      _ColorItem("Red Alpha 12", colors.redAlpha12),
+      ColorTokenItem(name: "Green 50", color: _currentPalette().green50),
+      ColorTokenItem(name: "Green 200", color: _currentPalette().green200),
+      ColorTokenItem(name: "Green 500", color: _currentPalette().green500),
+      ColorTokenItem(name: "Green 600", color: _currentPalette().green600),
+      ColorTokenItem(name: "Green 700", color: _currentPalette().green700),
     ];
   }
 
-  /// Yellow 컬러 리스트
-  List<_ColorItem> _getYellowColors() {
-    final colors = _getCurrentColors();
+  List<ColorTokenItem> _leafGreenColors() {
     return [
-      _ColorItem("Yellow Base", colors.yellowBase),
-      _ColorItem("Yellow Alpha 72", colors.yellowAlpha72),
-      _ColorItem("Yellow Alpha 48", colors.yellowAlpha48),
-      _ColorItem("Yellow Alpha 24", colors.yellowAlpha24),
-      _ColorItem("Yellow Alpha 12", colors.yellowAlpha12),
+      ColorTokenItem(name: "Leaf Green 50", color: _currentPalette().leafGreen50),
+      ColorTokenItem(name: "Leaf Green 200", color: _currentPalette().leafGreen200),
+      ColorTokenItem(name: "Leaf Green 500", color: _currentPalette().leafGreen500),
+      ColorTokenItem(name: "Leaf Green 600", color: _currentPalette().leafGreen600),
+      ColorTokenItem(name: "Leaf Green 700", color: _currentPalette().leafGreen700),
     ];
   }
 
-  /// Brick 컬러 리스트
-  List<_ColorItem> _getBrickColors() {
-    final colors = _getCurrentColors();
+  List<ColorTokenItem> _periwinkleColors() {
     return [
-      _ColorItem("Brick 50", colors.brick50),
-      _ColorItem("Brick 200", colors.brick200),
-      _ColorItem("Brick 500", colors.brick500),
-      _ColorItem("Brick 600", colors.brick600),
-      _ColorItem("Brick 700", colors.brick700),
+      ColorTokenItem(name: "Periwinkle 50", color: _currentPalette().periwinkle50),
+      ColorTokenItem(name: "Periwinkle 200", color: _currentPalette().periwinkle200),
+      ColorTokenItem(name: "Periwinkle 500", color: _currentPalette().periwinkle500),
+      ColorTokenItem(name: "Periwinkle 600", color: _currentPalette().periwinkle600),
+      ColorTokenItem(name: "Periwinkle 700", color: _currentPalette().periwinkle700),
     ];
   }
 
-  Widget _buildThemeSwitcher(BuildContext context) {
-    return ThemeSwitcher(
-      builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return GestureDetector(
-          onTap: () {
-            final theme = isDark ? fitLightTheme(context) : fitDarkTheme(context);
-            ThemeSwitcher.of(context).changeTheme(theme: theme);
-          },
-          child: Icon(
-            isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_fill,
-            color: context.fitColors.textPrimary,
-            size: 24,
-          ),
-        );
-      },
-    );
+  List<ColorTokenItem> _violetColors() {
+    return [
+      ColorTokenItem(name: "Violet 50", color: _currentPalette().violet50),
+      ColorTokenItem(name: "Violet 200", color: _currentPalette().violet200),
+      ColorTokenItem(name: "Violet 500", color: _currentPalette().violet500),
+      ColorTokenItem(name: "Violet 600", color: _currentPalette().violet600),
+      ColorTokenItem(name: "Violet 700", color: _currentPalette().violet700),
+    ];
   }
-}
 
-/// 컬러 아이템 모델
-class _ColorItem {
-  final String name;
-  final Color color;
+  List<ColorTokenItem> _redColors() {
+    return [
+      ColorTokenItem(name: "Red 50", color: _currentPalette().red50),
+      ColorTokenItem(name: "Red 200", color: _currentPalette().red200),
+      ColorTokenItem(name: "Red 500", color: _currentPalette().red500),
+      ColorTokenItem(name: "Red 600", color: _currentPalette().red600),
+      ColorTokenItem(name: "Red 700", color: _currentPalette().red700),
+    ];
+  }
 
-  const _ColorItem(this.name, this.color);
-}
+  List<ColorTokenItem> _brickColors() {
+    return [
+      ColorTokenItem(name: "Brick 50", color: _currentPalette().brick50),
+      ColorTokenItem(name: "Brick 200", color: _currentPalette().brick200),
+      ColorTokenItem(name: "Brick 500", color: _currentPalette().brick500),
+      ColorTokenItem(name: "Brick 600", color: _currentPalette().brick600),
+      ColorTokenItem(name: "Brick 700", color: _currentPalette().brick700),
+    ];
+  }
 
-/// 카테고리 아이템 모델
-class _CategoryItem {
-  final String name;
-  final IconData icon;
-  final Color color;
+  List<ColorTokenItem> _redAlphaColors() {
+    return [
+      ColorTokenItem(name: "Red Base", color: _currentPalette().redBase),
+      ColorTokenItem(name: "Red Alpha 72", color: _currentPalette().redAlpha72),
+      ColorTokenItem(name: "Red Alpha 48", color: _currentPalette().redAlpha48),
+      ColorTokenItem(name: "Red Alpha 24", color: _currentPalette().redAlpha24),
+      ColorTokenItem(name: "Red Alpha 12", color: _currentPalette().redAlpha12),
+    ];
+  }
 
-  const _CategoryItem(this.name, this.icon, this.color);
+  List<ColorTokenItem> _blueAlphaColors() {
+    return [
+      ColorTokenItem(name: "Blue Alpha Base", color: _currentPalette().blueAlphaBase),
+      ColorTokenItem(name: "Blue Alpha 72", color: _currentPalette().blueAlpha72),
+      ColorTokenItem(name: "Blue Alpha 48", color: _currentPalette().blueAlpha48),
+      ColorTokenItem(name: "Blue Alpha 24", color: _currentPalette().blueAlpha24),
+      ColorTokenItem(name: "Blue Alpha 12", color: _currentPalette().blueAlpha12),
+    ];
+  }
+
+  List<ColorTokenItem> _yellowAlphaColors() {
+    return [
+      ColorTokenItem(name: "Yellow Base", color: _currentPalette().yellowBase),
+      ColorTokenItem(name: "Yellow Alpha 72", color: _currentPalette().yellowAlpha72),
+      ColorTokenItem(name: "Yellow Alpha 48", color: _currentPalette().yellowAlpha48),
+      ColorTokenItem(name: "Yellow Alpha 24", color: _currentPalette().yellowAlpha24),
+      ColorTokenItem(name: "Yellow Alpha 12", color: _currentPalette().yellowAlpha12),
+    ];
+  }
+
+  List<ColorTokenItem> _greenAlphaColors() {
+    return [
+      ColorTokenItem(name: "Green Base", color: _currentPalette().greenBase),
+      ColorTokenItem(name: "Green Alpha 72", color: _currentPalette().greenAlpha72),
+      ColorTokenItem(name: "Green Alpha 48", color: _currentPalette().greenAlpha48),
+      ColorTokenItem(name: "Green Alpha 24", color: _currentPalette().greenAlpha24),
+      ColorTokenItem(name: "Green Alpha 12", color: _currentPalette().greenAlpha12),
+    ];
+  }
+
+  List<ColorTokenItem> _periwinkleAlphaColors() {
+    return [
+      ColorTokenItem(name: "Periwinkle Base", color: _currentPalette().periwinkleBase),
+      ColorTokenItem(name: "Periwinkle Alpha 72", color: _currentPalette().periwinkleAlpha72),
+      ColorTokenItem(name: "Periwinkle Alpha 48", color: _currentPalette().periwinkleAlpha48),
+      ColorTokenItem(name: "Periwinkle Alpha 24", color: _currentPalette().periwinkleAlpha24),
+      ColorTokenItem(name: "Periwinkle Alpha 12", color: _currentPalette().periwinkleAlpha12),
+    ];
+  }
+
+  List<ColorTokenItem> _violetAlphaColors() {
+    return [
+      ColorTokenItem(name: "Violet Base", color: _currentPalette().violetBase),
+      ColorTokenItem(name: "Violet Alpha 72", color: _currentPalette().violetAlpha72),
+      ColorTokenItem(name: "Violet Alpha 48", color: _currentPalette().violetAlpha48),
+      ColorTokenItem(name: "Violet Alpha 24", color: _currentPalette().violetAlpha24),
+      ColorTokenItem(name: "Violet Alpha 12", color: _currentPalette().violetAlpha12),
+    ];
+  }
+
+  FitColors _currentPalette() {
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+    return isDarkTheme ? darkFitColors : lightFitColors;
+  }
 }

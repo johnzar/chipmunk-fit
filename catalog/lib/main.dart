@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:catalog/router.dart';
-import 'package:chip_foundation/theme.dart';
+import 'package:catalog/theme/catalog_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,11 +56,12 @@ class CatalogApp extends StatelessWidget {
       minTextAdapt: true,
       rebuildFactor: RebuildFactors.change,
       builder: (context, child) {
-        final lightTheme = fitLightTheme(context);
-        final darkTheme = fitDarkTheme(context);
+        final lightTheme = catalogLightTheme(context);
+        final darkTheme = catalogDarkTheme(context);
+        final isSystemDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
 
         return ThemeProvider(
-          initTheme: lightTheme,
+          initTheme: isSystemDark ? darkTheme : lightTheme,
           builder: (context, myTheme) {
             // 상태바 스타일 설정 (테마에 따라 동적 변경)
             final isDark = myTheme.brightness == Brightness.dark;
@@ -78,7 +79,9 @@ class CatalogApp extends StatelessWidget {
               theme: myTheme,
               builder: (context, child) {
                 return MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                  data: MediaQuery.of(context).copyWith(
+                    textScaler: const TextScaler.linear(1.0),
+                  ),
                   child: child ?? const SizedBox.shrink(),
                 );
               },
