@@ -16,15 +16,76 @@ enum FitButtonType {
 class FitButtonStyle {
   FitButtonStyle._();
 
+  static const _disabledState = <WidgetState>{WidgetState.disabled};
+
+  static _ResolvedButtonColors _resolve(
+    BuildContext context,
+    FitButtonType type,
+  ) {
+    final colors = context.fitColors;
+    final filledStyle = Theme.of(context).filledButtonTheme.style;
+
+    if (type == FitButtonType.primary) {
+      final foreground =
+          filledStyle?.foregroundColor?.resolve({}) ?? colors.staticBlack;
+      return _ResolvedButtonColors(
+        backgroundColor:
+            filledStyle?.backgroundColor?.resolve({}) ?? colors.main,
+        disabledBackgroundColor:
+            filledStyle?.backgroundColor?.resolve(_disabledState) ??
+                colors.green50,
+        foregroundColor: foreground,
+        disabledForegroundColor:
+            filledStyle?.foregroundColor?.resolve(_disabledState) ??
+                colors.inverseDisabled,
+        loadingColor: foreground,
+      );
+    }
+
+    if (type == FitButtonType.secondary) {
+      return _ResolvedButtonColors(
+        backgroundColor: colors.grey900,
+        disabledBackgroundColor: colors.grey300,
+        foregroundColor: colors.inverseText,
+        disabledForegroundColor: colors.textSecondary,
+        loadingColor: colors.inverseText,
+      );
+    }
+    if (type == FitButtonType.tertiary) {
+      return _ResolvedButtonColors(
+        backgroundColor: colors.fillStrong,
+        disabledBackgroundColor: colors.fillAlternative,
+        foregroundColor: colors.textDisabled,
+        disabledForegroundColor: colors.textTertiary,
+        loadingColor: colors.textDisabled,
+      );
+    }
+    if (type == FitButtonType.ghost) {
+      return _ResolvedButtonColors(
+        backgroundColor: Colors.transparent,
+        disabledBackgroundColor: Colors.transparent,
+        foregroundColor: colors.grey900,
+        disabledForegroundColor: colors.grey300,
+        borderSide: BorderSide(color: colors.grey400, width: 1.0),
+        loadingColor: colors.grey900,
+      );
+    }
+    if (type == FitButtonType.destructive) {
+      return _ResolvedButtonColors(
+        backgroundColor: colors.red500,
+        disabledBackgroundColor: colors.red50,
+        foregroundColor: colors.staticWhite,
+        disabledForegroundColor: colors.inverseDisabled,
+        loadingColor: colors.staticWhite,
+      );
+    }
+
+    throw StateError('Unknown FitButtonType: $type');
+  }
+
   /// 버튼 타입에 따른 로딩 색상 반환
   static Color loadingColorOf(BuildContext context, FitButtonType type) {
-    final colors = context.fitColors;
-    return switch (type) {
-      FitButtonType.primary => colors.staticBlack,
-      FitButtonType.secondary => colors.inverseText,
-      FitButtonType.tertiary || FitButtonType.ghost => colors.grey900,
-      FitButtonType.destructive => colors.staticWhite,
-    };
+    return _resolve(context, type).loadingColor;
   }
 
   /// 버튼 타입에 따른 텍스트 색상 반환
@@ -33,23 +94,10 @@ class FitButtonStyle {
     FitButtonType type, {
     required bool isEnabled,
   }) {
-    final colors = context.fitColors;
-
-    if (isEnabled) {
-      return switch (type) {
-        FitButtonType.primary => colors.staticBlack,
-        FitButtonType.secondary => colors.inverseText,
-        FitButtonType.tertiary || FitButtonType.ghost => colors.grey900,
-        FitButtonType.destructive => colors.staticWhite,
-      };
-    }
-
-    return switch (type) {
-      FitButtonType.primary || FitButtonType.destructive => colors.inverseDisabled,
-      FitButtonType.secondary => colors.textSecondary,
-      FitButtonType.tertiary => colors.textDisabled,
-      FitButtonType.ghost => colors.grey300,
-    };
+    final resolved = _resolve(context, type);
+    return isEnabled
+        ? resolved.foregroundColor
+        : resolved.disabledForegroundColor;
   }
 
   /// 커스텀 ButtonStyle 생성
@@ -89,7 +137,8 @@ class FitButtonStyle {
       padding: padding != null ? WidgetStateProperty.all(padding) : null,
       textStyle: textStyle != null ? WidgetStateProperty.all(textStyle) : null,
       elevation: elevation != null ? WidgetStateProperty.all(elevation) : null,
-      minimumSize: minimumSize != null ? WidgetStateProperty.all(minimumSize) : null,
+      minimumSize:
+          minimumSize != null ? WidgetStateProperty.all(minimumSize) : null,
       shadowColor: WidgetStateProperty.all(Colors.transparent),
       surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
     );
@@ -102,47 +151,37 @@ class FitButtonStyle {
     bool isRipple = false,
   }) {
     final colors = context.fitColors;
-    final overlayColor = isRipple ? colors.grey600.withValues(alpha: 0.2) : Colors.transparent;
+    final overlayColor =
+        isRipple ? colors.grey600.withValues(alpha: 0.2) : Colors.transparent;
+    final resolved = _resolve(context, type);
 
-    return switch (type) {
-      FitButtonType.primary => styleFrom(
-          backgroundColor: colors.main,
-          foregroundColor: colors.staticBlack,
-          disabledBackgroundColor: colors.green50,
-          disabledForegroundColor: colors.inverseDisabled,
-          overlayColor: overlayColor,
-        ),
-      FitButtonType.secondary => styleFrom(
-          backgroundColor: colors.grey900,
-          foregroundColor: colors.inverseText,
-          disabledBackgroundColor: colors.grey300,
-          disabledForegroundColor: colors.textSecondary,
-          overlayColor: overlayColor,
-        ),
-      FitButtonType.tertiary => styleFrom(
-          backgroundColor: colors.fillStrong,
-          foregroundColor: colors.textDisabled,
-          disabledBackgroundColor: colors.fillAlternative,
-          disabledForegroundColor: colors.textTertiary,
-          overlayColor: overlayColor,
-        ),
-      FitButtonType.ghost => styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: colors.grey900,
-          disabledBackgroundColor: Colors.transparent,
-          disabledForegroundColor: colors.grey300,
-          overlayColor: overlayColor,
-          side: BorderSide(color: colors.grey400, width: 1.0),
-        ),
-      FitButtonType.destructive => styleFrom(
-          backgroundColor: colors.red500,
-          foregroundColor: colors.staticWhite,
-          disabledBackgroundColor: colors.red50,
-          disabledForegroundColor: colors.inverseDisabled,
-          overlayColor: overlayColor,
-        ),
-    };
+    return styleFrom(
+      backgroundColor: resolved.backgroundColor,
+      foregroundColor: resolved.foregroundColor,
+      disabledBackgroundColor: resolved.disabledBackgroundColor,
+      disabledForegroundColor: resolved.disabledForegroundColor,
+      overlayColor: overlayColor,
+      side: resolved.borderSide,
+    );
   }
+}
+
+class _ResolvedButtonColors {
+  final Color backgroundColor;
+  final Color disabledBackgroundColor;
+  final Color foregroundColor;
+  final Color disabledForegroundColor;
+  final BorderSide? borderSide;
+  final Color loadingColor;
+
+  const _ResolvedButtonColors({
+    required this.backgroundColor,
+    required this.disabledBackgroundColor,
+    required this.foregroundColor,
+    required this.disabledForegroundColor,
+    this.borderSide,
+    required this.loadingColor,
+  });
 }
 
 /// ButtonStyle 병합을 위한 extension

@@ -2,12 +2,19 @@ import 'dart:async';
 
 import 'package:chip_component/fit_dot_loading.dart';
 import 'package:chip_foundation/buttonstyle.dart';
-import 'package:chip_foundation/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sprung/sprung.dart';
 
+/// ChipFit 기본 버튼 컴포넌트.
+///
+/// 정책 요약:
+/// - 로딩 상태(`isLoading`)에서는 탭 입력을 무시합니다.
+/// - `child`가 `Text`일 때 자동 축소를 적용해 텍스트 overflow를 완화합니다.
+/// - 최소 축소 배율에서도 넘치면 말줄임(`ellipsis`)으로 처리합니다.
 class FitButton extends StatefulWidget {
+  /// 새 [FitButton]을 생성합니다.
+  ///
+  /// `maxLines`는 1 이상이어야 하며, 기본값은 `1`입니다.
   const FitButton({
     super.key,
     required this.child,
@@ -21,19 +28,50 @@ class FitButton extends StatefulWidget {
     this.isLoading = false,
     this.enableRipple = false,
     this.loadingColor,
-  });
+    this.maxLines = 1,
+  }) : assert(maxLines > 0);
 
+  /// 버튼 내부 콘텐츠.
   final Widget child;
+
+  /// 활성 상태에서 버튼 탭 시 호출됩니다.
   final VoidCallback? onPressed;
+
+  /// 비활성 상태에서 버튼 탭 시 호출됩니다.
+  ///
+  /// 단, `isLoading == true`일 때는 호출되지 않습니다.
   final VoidCallback? onDisabledPressed;
+
+  /// 버튼 타입 토큰.
   final FitButtonType type;
+
+  /// 기본 버튼 스타일 위에 병합할 사용자 스타일.
+  ///
+  /// 병합 시 사용자 스타일이 우선 적용됩니다.
   final ButtonStyle? style;
+
+  /// 내부 패딩 오버라이드 값.
   final EdgeInsets? padding;
+
+  /// `true`이면 버튼이 가로 전체 폭을 사용합니다.
   final bool isExpanded;
+
+  /// 버튼 활성화 여부.
   final bool isEnabled;
+
+  /// 로딩 상태 여부.
   final bool isLoading;
+
+  /// 터치 오버레이(리플) 사용 여부.
   final bool enableRipple;
+
+  /// 로딩 인디케이터 색상 오버라이드.
   final Color? loadingColor;
+
+  /// `Text` child 자동 축소 시 허용할 최대 라인 수.
+  ///
+  /// 기본값은 `1`입니다.
+  final int maxLines;
 
   @override
   State<FitButton> createState() => _FitButtonState();
@@ -44,6 +82,9 @@ class _FitButtonState extends State<FitButton> {
   static const _kDebounceDuration = Duration(seconds: 1);
   static const _kAnimDuration = Duration(milliseconds: 600);
   static const _kPressedScale = 0.97;
+  // 접근성 표준(WCAG)의 고정 수치가 아니라, 디자인 시스템 정책 값입니다.
+  // 0.7 미만은 가독성이 급격히 떨어질 수 있어 하한으로 사용합니다.
+  static const _kMinFontScale = 0.7;
   static final _kPressedCurve = Sprung.custom(damping: 8);
   static final _kReleasedCurve = Sprung.custom(damping: 6);
 
@@ -72,7 +113,7 @@ class _FitButtonState extends State<FitButton> {
   Widget build(BuildContext context) {
     final padding = widget.padding ??
         EdgeInsets.symmetric(
-          vertical: widget.isExpanded ? 20 : 12,
+          vertical: 20,
           horizontal: widget.isExpanded ? 20 : 14,
         );
 
@@ -80,7 +121,7 @@ class _FitButtonState extends State<FitButton> {
       onTapDown: (_) {
         if (_isInteractive) {
           _setPressed(true);
-        } else {
+        } else if (!widget.isLoading) {
           widget.onDisabledPressed?.call();
         }
       },
@@ -105,30 +146,19 @@ class _FitButtonState extends State<FitButton> {
 
     return widget.isExpanded
         ? SizedBox(width: double.infinity, child: button)
-        : IntrinsicWidth(child: button);
+        : button;
   }
 
-  /// 타입별 색상과 커스텀 스타일을 병합한 ButtonStyle 반환
+  /// 타입 스타일 + 상태 스타일 + 커스텀 스타일을 병합한 ButtonStyle 반환
   ButtonStyle _buildStyle(BuildContext context, EdgeInsets padding) {
-    final colors = context.fitColors;
-    final (bg, disabledBg, fg, disabledFg, border) = _resolveColors(colors);
-
-    final baseStyle = FilledButton.styleFrom(
-      backgroundColor: bg,
-      disabledBackgroundColor: disabledBg,
-      foregroundColor: fg,
-      disabledForegroundColor: disabledFg,
-      padding: padding,
-      minimumSize: Size.zero,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(100.r),
-        side: border ?? BorderSide.none,
-      ),
+    final baseStyle = FitButtonStyle.of(
+      context,
+      widget.type,
+      isRipple: widget.enableRipple,
     ).copyWith(
-      overlayColor: WidgetStateProperty.all(
-        widget.enableRipple ? colors.grey600.withValues(alpha: 0.2) : Colors.transparent,
-      ),
+      padding: WidgetStateProperty.all(padding),
+      minimumSize: WidgetStateProperty.all(Size.zero),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       elevation: WidgetStateProperty.all(0),
       shadowColor: WidgetStateProperty.all(Colors.transparent),
       surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
@@ -138,56 +168,10 @@ class _FitButtonState extends State<FitButton> {
     return widget.style?.merge(baseStyle) ?? baseStyle;
   }
 
-  /// 버튼 타입별 색상 반환 (bg, disabledBg, fg, disabledFg, border)
-  (Color, Color, Color, Color, BorderSide?) _resolveColors(FitColors colors) {
-    final theme = Theme.of(context).filledButtonTheme.style;
-    final themeDisabledBg =
-        theme?.backgroundColor?.resolve({WidgetState.disabled}) ?? colors.green50;
-    final themeFg =
-        theme?.foregroundColor?.resolve({WidgetState.selected}) ?? colors.staticBlack;
-
-    return switch (widget.type) {
-      FitButtonType.primary => (
-          colors.main,
-          themeDisabledBg,
-          themeFg,
-          colors.inverseDisabled,
-          null,
-        ),
-      FitButtonType.secondary => (
-          colors.grey900,
-          colors.grey300,
-          colors.inverseText,
-          colors.textSecondary,
-          null,
-        ),
-      FitButtonType.tertiary => (
-          colors.fillStrong,
-          colors.fillAlternative,
-          colors.textDisabled,
-          colors.textTertiary,
-          null,
-        ),
-      FitButtonType.ghost => (
-          Colors.transparent,
-          Colors.transparent,
-          colors.grey900,
-          colors.grey300,
-          BorderSide(color: colors.grey400, width: 1.0),
-        ),
-      FitButtonType.destructive => (
-          colors.red500,
-          colors.red50,
-          colors.staticWhite,
-          colors.inverseDisabled,
-          null,
-        ),
-    };
-  }
-
   /// 로딩 상태일 때 로딩 인디케이터 표시
   Widget _buildContent(BuildContext context) {
-    if (!widget.isLoading) return widget.child;
+    final normalizedChild = _buildNormalizedChild(context, widget.child);
+    if (!widget.isLoading) return normalizedChild;
 
     return Stack(
       alignment: Alignment.center,
@@ -198,13 +182,178 @@ class _FitButtonState extends State<FitButton> {
           maintainSize: true,
           maintainAnimation: true,
           maintainState: true,
-          child: widget.child,
+          child: normalizedChild,
         ),
         FitDotLoading(
           dotSize: 8,
-          color: widget.loadingColor ?? FitButtonStyle.loadingColorOf(context, widget.type),
+          color: widget.loadingColor ??
+              FitButtonStyle.loadingColorOf(context, widget.type),
         ),
       ],
     );
   }
+
+  Widget _buildNormalizedChild(BuildContext context, Widget child) {
+    if (child is! Text) return child;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final result = _resolveAutoSize(context, child, constraints);
+        return _copyTextWithPolicy(
+          source: child,
+          scale: result.scale,
+          useEllipsis: result.useEllipsis,
+        );
+      },
+    );
+  }
+
+  _AutoSizeTextResult _resolveAutoSize(
+    BuildContext context,
+    Text source,
+    BoxConstraints constraints,
+  ) {
+    if (!constraints.hasBoundedWidth || constraints.maxWidth <= 0) {
+      return const _AutoSizeTextResult(scale: 1.0, useEllipsis: false);
+    }
+
+    final textDirection = source.textDirection ??
+        Directionality.maybeOf(context) ??
+        TextDirection.ltr;
+    final maxWidth = constraints.maxWidth;
+
+    // scale 배율에서 maxLines 내 배치 가능한지 측정.
+    bool fits(double scale, {required bool useEllipsis}) {
+      return _fitsText(
+        context: context,
+        source: source,
+        textDirection: textDirection,
+        maxWidth: maxWidth,
+        scale: scale,
+        useEllipsis: useEllipsis,
+      );
+    }
+
+    if (fits(1.0, useEllipsis: false)) {
+      return const _AutoSizeTextResult(scale: 1.0, useEllipsis: false);
+    }
+
+    if (!fits(_kMinFontScale, useEllipsis: false)) {
+      return const _AutoSizeTextResult(
+          scale: _kMinFontScale, useEllipsis: true);
+    }
+
+    double low = _kMinFontScale;
+    double high = 1.0;
+    double best = _kMinFontScale;
+
+    for (int i = 0; i < 12; i++) {
+      final mid = (low + high) / 2;
+      if (fits(mid, useEllipsis: false)) {
+        best = mid;
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+
+    return _AutoSizeTextResult(scale: best, useEllipsis: false);
+  }
+
+  bool _fitsText({
+    required BuildContext context,
+    required Text source,
+    required TextDirection textDirection,
+    required double maxWidth,
+    required double scale,
+    required bool useEllipsis,
+  }) {
+    final painter = TextPainter(
+      text: _resolveTextSpan(context, source),
+      textAlign: source.textAlign ?? TextAlign.center,
+      textDirection: textDirection,
+      locale: source.locale,
+      strutStyle: source.strutStyle,
+      textWidthBasis: source.textWidthBasis ?? TextWidthBasis.parent,
+      textHeightBehavior: source.textHeightBehavior,
+      maxLines: widget.maxLines,
+      textScaler: TextScaler.linear(scale),
+      ellipsis: useEllipsis ? '…' : null,
+    );
+
+    painter.layout(maxWidth: maxWidth);
+    return !painter.didExceedMaxLines;
+  }
+
+  TextSpan _resolveTextSpan(BuildContext context, Text source) {
+    final baseStyle = DefaultTextStyle.of(context).style.merge(source.style);
+
+    if (source.data != null) {
+      return TextSpan(text: source.data, style: baseStyle);
+    }
+
+    final rich = source.textSpan;
+    if (rich == null) {
+      return TextSpan(text: '', style: baseStyle);
+    }
+
+    return TextSpan(style: baseStyle, children: [rich]);
+  }
+
+  Text _copyTextWithPolicy({
+    required Text source,
+    required double scale,
+    required bool useEllipsis,
+  }) {
+    final overflow = useEllipsis ? TextOverflow.ellipsis : source.overflow;
+    final softWrap = widget.maxLines > 1 ? (source.softWrap ?? true) : false;
+
+    if (source.data != null) {
+      return Text(
+        source.data!,
+        key: source.key,
+        style: source.style,
+        strutStyle: source.strutStyle,
+        textAlign: source.textAlign ?? TextAlign.center,
+        textDirection: source.textDirection,
+        locale: source.locale,
+        softWrap: softWrap,
+        overflow: overflow,
+        textScaler: TextScaler.linear(scale),
+        semanticsLabel: source.semanticsLabel,
+        textWidthBasis: source.textWidthBasis,
+        textHeightBehavior: source.textHeightBehavior,
+        selectionColor: source.selectionColor,
+        maxLines: widget.maxLines,
+      );
+    }
+
+    return Text.rich(
+      source.textSpan ?? const TextSpan(text: ''),
+      key: source.key,
+      style: source.style,
+      strutStyle: source.strutStyle,
+      textAlign: source.textAlign ?? TextAlign.center,
+      textDirection: source.textDirection,
+      locale: source.locale,
+      softWrap: softWrap,
+      overflow: overflow,
+      textScaler: TextScaler.linear(scale),
+      semanticsLabel: source.semanticsLabel,
+      textWidthBasis: source.textWidthBasis,
+      textHeightBehavior: source.textHeightBehavior,
+      selectionColor: source.selectionColor,
+      maxLines: widget.maxLines,
+    );
+  }
+}
+
+class _AutoSizeTextResult {
+  final double scale;
+  final bool useEllipsis;
+
+  const _AutoSizeTextResult({
+    required this.scale,
+    required this.useEllipsis,
+  });
 }
