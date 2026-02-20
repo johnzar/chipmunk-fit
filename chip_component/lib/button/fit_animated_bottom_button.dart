@@ -4,27 +4,14 @@ import 'package:chip_foundation/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// 키보드 반응형 하단 고정 버튼
+/// 키보드 상태에 맞춰 하단 고정 버튼의 패딩/모서리를 애니메이션하는 래퍼입니다.
 ///
-/// 키보드 표시 여부에 따라 radius/padding 애니메이션 자동 처리.
-/// WidgetsBindingObserver로 키보드 감지 (BlocBuilder 등에서도 동작).
-///
-/// ```dart
-/// // 일반 화면
-/// FitAnimatedBottomButton(
-///   isEnabled: state.isValid,
-///   onPressed: () => _submit(),
-///   child: Text('확인'),
-/// )
-///
-/// // 바텀시트 (useSafeArea: false 권장)
-/// FitAnimatedBottomButton(
-///   useSafeArea: false,
-///   onPressed: () => Navigator.pop(context),
-///   child: Text('확인'),
-/// )
-/// ```
+/// 내부적으로 [FitButton]을 사용하며, 버튼 관련 옵션을 그대로 전달합니다.
+/// 바텀시트처럼 부모에서 safe area를 이미 처리한 경우 `useSafeArea: false`를 권장합니다.
 class FitAnimatedBottomButton extends StatefulWidget {
+  /// [FitAnimatedBottomButton]를 생성합니다.
+  ///
+  /// [maxLines]는 1 이상이어야 합니다.
   const FitAnimatedBottomButton({
     super.key,
     required this.child,
@@ -37,21 +24,45 @@ class FitAnimatedBottomButton extends StatefulWidget {
     this.useSafeArea = true,
     this.backgroundColor,
     this.borderRadius,
-  });
+    this.maxLines = 1,
+  }) : assert(maxLines > 0);
 
+  /// 버튼 콘텐츠입니다.
   final Widget child;
+
+  /// 버튼 탭 콜백입니다.
   final VoidCallback? onPressed;
+
+  /// 버튼 타입 토큰입니다.
   final FitButtonType type;
+
+  /// 기본 스타일 위에 덮어쓸 커스텀 스타일입니다.
   final ButtonStyle? style;
+
+  /// 버튼 활성화 여부입니다.
   final bool isEnabled;
+
+  /// 로딩 상태 여부입니다.
   final bool isLoading;
+
+  /// 로딩 인디케이터 색상 오버라이드입니다.
   final Color? loadingColor;
+
+  /// 하단 safe area 반영 여부입니다.
   final bool useSafeArea;
+
+  /// 버튼 컨테이너 배경색 오버라이드입니다.
   final Color? backgroundColor;
+
+  /// 버튼 기본 radius 오버라이드입니다.
   final double? borderRadius;
 
+  /// 버튼 텍스트 최대 라인 수입니다.
+  final int maxLines;
+
   @override
-  State<FitAnimatedBottomButton> createState() => _FitAnimatedBottomButtonState();
+  State<FitAnimatedBottomButton> createState() =>
+      _FitAnimatedBottomButtonState();
 }
 
 class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
@@ -75,8 +86,9 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
   @override
   void didUpdateWidget(FitAnimatedBottomButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // borderRadius나 style 변경 시 캐시 무효화
-    if (oldWidget.borderRadius != widget.borderRadius || oldWidget.style != widget.style) {
+    // shape 기준 radius 캐시를 갱신합니다.
+    if (oldWidget.borderRadius != widget.borderRadius ||
+        oldWidget.style != widget.style) {
       _cachedRadius = null;
     }
   }
@@ -92,14 +104,15 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
 
   void _syncKeyboardHeight() {
     if (!mounted) return;
-    final view = View.of(context);
+    final view = WidgetsBinding.instance.platformDispatcher.implicitView;
+    if (view == null) return;
     final height = view.viewInsets.bottom / view.devicePixelRatio;
     if (_keyboardHeight != height) {
       setState(() => _keyboardHeight = height);
     }
   }
 
-  /// borderRadius 우선순위: widget.borderRadius > style.shape > 기본값
+  /// radius 해석 우선순위: `widget.borderRadius > style.shape > 기본값`.
   double get _baseRadius => _cachedRadius ??= _resolveRadius();
 
   double _resolveRadius() {
@@ -107,10 +120,38 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
 
     final shape = widget.style?.shape?.resolve({});
     if (shape is RoundedRectangleBorder) {
-      final br = shape.borderRadius;
-      if (br is BorderRadius) return br.topLeft.x;
+      final resolved = shape.borderRadius.resolve(
+        Directionality.maybeOf(context) ?? TextDirection.ltr,
+      );
+      return resolved.topLeft.x;
     }
     return 100.r;
+  }
+
+  double _resolveSafeBottomPadding(MediaQueryData query) {
+    if (!widget.useSafeArea) return 0.0;
+    final safeBottom = query.padding.bottom;
+    return safeBottom > 0 ? safeBottom + _kSafeAreaPadding : 0.0;
+  }
+
+  /// 키보드 상태(anim)에 따라 컨테이너 패딩을 계산합니다.
+  EdgeInsets _resolveContainerPadding(double anim, double safeBottomPadding) {
+    final bottomPadding = widget.useSafeArea
+        ? (safeBottomPadding > 0 ? safeBottomPadding : 16.h * anim)
+        : 0.0;
+
+    return EdgeInsets.only(
+      left: 20.w * anim,
+      right: 20.w * anim,
+      top: 12.h * anim,
+      bottom: bottomPadding,
+    );
+  }
+
+  OutlinedBorder _resolveAnimatedShape(double anim) {
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(_baseRadius * anim),
+    );
   }
 
   @override
@@ -118,7 +159,7 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
     final colors = context.fitColors;
     final query = MediaQuery.of(context);
     final bgColor = widget.backgroundColor ?? colors.backgroundAlternative;
-    final safeBottom = widget.useSafeArea ? query.padding.bottom : 0.0;
+    final safeBottomPadding = _resolveSafeBottomPadding(query);
 
     return TweenAnimationBuilder<double>(
       duration: _kAnimDuration,
@@ -137,19 +178,15 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
                 ]
               : null,
         ),
-        padding: EdgeInsets.only(
-          left: 20.w * anim,
-          right: 20.w * anim,
-          top: 12.h * anim,
-          bottom: safeBottom > 0 ? safeBottom + _kSafeAreaPadding : 16.h * anim,
-        ),
+        padding: _resolveContainerPadding(anim, safeBottomPadding),
         child: FitButton(
           isExpanded: true,
           type: widget.type,
           style: _animatedStyle(anim),
           isEnabled: widget.isEnabled && !widget.isLoading,
           isLoading: widget.isLoading,
-          loadingColor: widget.loadingColor ?? colors.violet500,
+          loadingColor: widget.loadingColor,
+          maxLines: widget.maxLines,
           onPressed: widget.onPressed,
           child: widget.child,
         ),
@@ -157,13 +194,9 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
     );
   }
 
-  /// 애니메이션 값에 따라 shape만 동적 적용
+  /// 애니메이션 진행도에 맞는 shape를 스타일에 반영합니다.
   ButtonStyle _animatedStyle(double anim) {
-    final shape = WidgetStateProperty.all(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(_baseRadius * anim),
-      ),
-    );
+    final shape = WidgetStateProperty.all(_resolveAnimatedShape(anim));
     return widget.style?.copyWith(shape: shape) ?? ButtonStyle(shape: shape);
   }
 }
