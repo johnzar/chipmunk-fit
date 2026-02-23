@@ -42,6 +42,7 @@ dependencies:
   flutter_animate:
   lottie:
   dotlottie_loader:
+  path_provider:
   flutter_svg:
   flutter_bounceable:
   flutter_quill:

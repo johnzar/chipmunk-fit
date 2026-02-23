@@ -1,84 +1,61 @@
 import 'package:chip_component/button/fit_button.dart';
-import 'package:flutter/material.dart';
 import 'package:chip_foundation/buttonstyle.dart';
 import 'package:chip_foundation/colors.dart';
 import 'package:chip_foundation/textstyle.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// 공통 다이얼로그 생성 유틸리티
+/// 공통 다이얼로그 생성 유틸리티.
 class FitDialog {
-  /// 에러 메시지를 표시하는 다이얼로그 생성
-  static Future<T?> showErrorDialog<T>({
+  /// 범용 다이얼로그를 표시합니다.
+  static Future<T?> show<T>({
     required BuildContext context,
-    required String message,
-    String? description,
-    required VoidCallback onPress,
+    String? title,
+    String? subTitle,
+    String? confirmText,
+    String? cancelText,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
     VoidCallback? onDismiss,
-    Color? dialogBackgroundColor,
-    TextStyle? textStyle,
-    Color? btnOkColor,
-    Color? btnOkTextColor,
-    String? btnOkText,
-    double borderRadius = 32.0,
     bool dismissOnTouchOutside = false,
     bool dismissOnBackKeyPress = false,
+    Widget? topContent,
+    Widget? bottomContent,
+    double borderRadius = 32.0,
+    Color? backgroundColor,
+    FitButtonType? confirmButtonType,
+    FitButtonType? cancelButtonType,
+    Color? confirmButtonColor,
+    Color? cancelButtonColor,
+    Color? confirmTextColor,
+    Color? cancelTextColor,
   }) {
-    return showGeneralDialog<T>(
+    return _showInternal<T>(
       context: context,
-      barrierDismissible: dismissOnTouchOutside,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black54,
-      transitionDuration: const Duration(milliseconds: 300),
-      transitionBuilder: _slideTransition,
-      pageBuilder: (context, animation, secondaryAnimation) => PopScope(
-        canPop: dismissOnBackKeyPress,
-        child: Dialog(
-          backgroundColor: dialogBackgroundColor ?? context.fitColors.backgroundElevated,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius.r),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 8),
-                Text(
-                  description?.isNotEmpty == true ? description! : message,
-                  style: textStyle ?? context.body1().copyWith(color: context.fitColors.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 28),
-                FitButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    onPress();
-                  },
-                  isExpanded: true,
-                  type: FitButtonType.primary,
-                  style: btnOkColor != null
-                      ? FitButtonStyle.styleFrom(backgroundColor: btnOkColor)
-                      : null,
-                  child: Text(
-                    btnOkText ?? '확인',
-                    style: context.button1().copyWith(
-                          color: btnOkTextColor ?? context.fitColors.staticBlack,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ).then((value) {
-      onDismiss?.call();
-      return value;
-    });
+      title: title,
+      subTitle: subTitle,
+      confirmText: confirmText,
+      cancelText: cancelText,
+      onConfirm: onConfirm,
+      onCancel: onCancel,
+      onDismiss: onDismiss,
+      dismissOnTouchOutside: dismissOnTouchOutside,
+      dismissOnBackKeyPress: dismissOnBackKeyPress,
+      topContent: topContent,
+      bottomContent: bottomContent,
+      borderRadius: borderRadius,
+      backgroundColor: backgroundColor,
+      confirmButtonType: confirmButtonType,
+      cancelButtonType: cancelButtonType,
+      confirmButtonColor: confirmButtonColor,
+      cancelButtonColor: cancelButtonColor,
+      confirmTextColor: confirmTextColor,
+      cancelTextColor: cancelTextColor,
+    );
   }
 
-  /// 커스터마이징 가능한 범용 다이얼로그 생성
+  /// Deprecated: [show]를 사용하세요.
+  @Deprecated('Use FitDialog.show')
   static Future<T?> showFitDialog<T>({
     required BuildContext context,
     String? title,
@@ -103,65 +80,191 @@ class FitDialog {
     Color? btnOkTextColor,
     Color? btnCancelTextColor,
   }) {
+    return _showInternal<T>(
+      context: context,
+      title: title,
+      subTitle: subTitle,
+      confirmText: btnOkText,
+      cancelText: btnCancelText,
+      onConfirm: btnOkPressed,
+      onCancel: btnCancelPressed,
+      onDismiss: onDismiss,
+      dismissOnTouchOutside: dismissOnTouchOutside,
+      dismissOnBackKeyPress: dismissOnBackKeyPress,
+      topContent: topContent,
+      bottomContent: bottomContent,
+      borderRadius: borderRadius,
+      backgroundColor: dialogBackgroundColor,
+      confirmButtonType: okButtonType,
+      cancelButtonType: cancelButtonType,
+      confirmButtonColor: btnOkColor,
+      cancelButtonColor: btnCancelColor,
+      confirmTextColor: btnOkTextColor,
+      cancelTextColor: btnCancelTextColor,
+      titleStyle: titleTextColor == null
+          ? null
+          : context.h2().copyWith(color: titleTextColor),
+      subTitleStyle: subTitleTextColor == null
+          ? null
+          : context.body1().copyWith(color: subTitleTextColor),
+    );
+  }
+
+  /// Deprecated: [show]를 사용하세요.
+  @Deprecated('Use FitDialog.show')
+  static Future<T?> showErrorDialog<T>({
+    required BuildContext context,
+    required String message,
+    String? description,
+    required VoidCallback onPress,
+    VoidCallback? onDismiss,
+    Color? dialogBackgroundColor,
+    TextStyle? textStyle,
+    Color? btnOkColor,
+    Color? btnOkTextColor,
+    String? btnOkText,
+    double borderRadius = 32.0,
+    bool dismissOnTouchOutside = false,
+    bool dismissOnBackKeyPress = false,
+  }) {
+    return _showInternal<T>(
+      context: context,
+      subTitle: description?.isNotEmpty == true ? description! : message,
+      confirmText: btnOkText,
+      onConfirm: onPress,
+      onDismiss: onDismiss,
+      dismissOnTouchOutside: dismissOnTouchOutside,
+      dismissOnBackKeyPress: dismissOnBackKeyPress,
+      borderRadius: borderRadius,
+      backgroundColor: dialogBackgroundColor,
+      confirmButtonColor: btnOkColor,
+      confirmTextColor: btnOkTextColor,
+      subTitleStyle: textStyle,
+    );
+  }
+
+  static Future<T?> _showInternal<T>({
+    required BuildContext context,
+    String? title,
+    String? subTitle,
+    String? confirmText,
+    String? cancelText,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
+    VoidCallback? onDismiss,
+    bool dismissOnTouchOutside = false,
+    bool dismissOnBackKeyPress = false,
+    Widget? topContent,
+    Widget? bottomContent,
+    double borderRadius = 32.0,
+    Color? backgroundColor,
+    FitButtonType? confirmButtonType,
+    FitButtonType? cancelButtonType,
+    Color? confirmButtonColor,
+    Color? cancelButtonColor,
+    Color? confirmTextColor,
+    Color? cancelTextColor,
+    TextStyle? titleStyle,
+    TextStyle? subTitleStyle,
+  }) {
     return showGeneralDialog<T>(
       context: context,
-      barrierDismissible: dismissOnTouchOutside,
+      barrierDismissible: false,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 300),
       transitionBuilder: _slideTransition,
       pageBuilder: (context, animation, secondaryAnimation) => PopScope(
         canPop: dismissOnBackKeyPress,
-        child: Dialog(
-          backgroundColor: dialogBackgroundColor ?? context.fitColors.backgroundElevated,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius.r),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (topContent != null) topContent,
-                if (title != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    title,
-                    style: context.h2().copyWith(
-                          color: titleTextColor ?? context.fitColors.textPrimary,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-                if (subTitle != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    subTitle,
-                    style: context.body1().copyWith(
-                          color: subTitleTextColor ?? context.fitColors.textSecondary,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-                if (bottomContent != null) bottomContent,
-                const SizedBox(height: 28),
-                _buildButtons(
-                  context,
-                  btnOkPressed: btnOkPressed,
-                  btnCancelPressed: btnCancelPressed,
-                  btnOkText: btnOkText,
-                  btnCancelText: btnCancelText,
-                  okButtonType: okButtonType,
-                  cancelButtonType: cancelButtonType,
-                  btnOkColor: btnOkColor,
-                  btnCancelColor: btnCancelColor,
-                  btnOkTextColor: btnOkTextColor,
-                  btnCancelTextColor: btnCancelTextColor,
+        child: Stack(
+          children: [
+            if (dismissOnTouchOutside)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const SizedBox.expand(),
                 ),
-              ],
+              ),
+            Center(
+              child: Dialog(
+                backgroundColor:
+                    backgroundColor ?? context.fitColors.backgroundElevated,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(borderRadius.r),
+                ),
+                child: ConstrainedBox(
+                  key: const ValueKey('fit_dialog_height_cap'),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.82,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (topContent != null) topContent,
+                                if (title != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    title,
+                                    style: titleStyle ??
+                                        context.h2().copyWith(
+                                              color:
+                                                  context.fitColors.textPrimary,
+                                            ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                                if (subTitle != null) ...[
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    subTitle,
+                                    style: subTitleStyle ??
+                                        context.body1().copyWith(
+                                              color: context
+                                                  .fitColors.textSecondary,
+                                            ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                                if (bottomContent != null) ...[
+                                  const SizedBox(height: 12),
+                                  bottomContent,
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildButtons(
+                          context,
+                          onConfirm: onConfirm,
+                          onCancel: onCancel,
+                          confirmText: confirmText,
+                          cancelText: cancelText,
+                          confirmButtonType: confirmButtonType,
+                          cancelButtonType: cancelButtonType,
+                          confirmButtonColor: confirmButtonColor,
+                          cancelButtonColor: cancelButtonColor,
+                          confirmTextColor: confirmTextColor,
+                          cancelTextColor: cancelTextColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     ).then((value) {
@@ -189,7 +292,8 @@ class FitDialog {
         if (isDismissing) {
           // 사라질 때: 중앙(0) → 아래(0.5)
           // animation.value: 1 → 0
-          final curvedValue = Curves.easeInCubic.transform(1.0 - animation.value);
+          final curvedValue =
+              Curves.easeInCubic.transform(1.0 - animation.value);
           offset = Offset(0, curvedValue * 0.5);
           opacity = animation.value;
         } else {
@@ -218,38 +322,38 @@ class FitDialog {
   /// 버튼 영역 빌드
   static Widget _buildButtons(
     BuildContext context, {
-    VoidCallback? btnOkPressed,
-    VoidCallback? btnCancelPressed,
-    String? btnOkText,
-    String? btnCancelText,
-    FitButtonType? okButtonType,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
+    String? confirmText,
+    String? cancelText,
+    FitButtonType? confirmButtonType,
     FitButtonType? cancelButtonType,
-    Color? btnOkColor,
-    Color? btnCancelColor,
-    Color? btnOkTextColor,
-    Color? btnCancelTextColor,
+    Color? confirmButtonColor,
+    Color? cancelButtonColor,
+    Color? confirmTextColor,
+    Color? cancelTextColor,
   }) {
-    final hasCancel = btnCancelPressed != null || btnCancelText != null;
+    final hasCancel = onCancel != null || cancelText != null;
 
     if (!hasCancel) {
       // 확인 버튼만
       return FitButton(
         onPressed: () {
           Navigator.of(context).pop();
-          btnOkPressed?.call();
+          onConfirm?.call();
         },
         isExpanded: true,
-        type: okButtonType ?? FitButtonType.primary,
-        style: btnOkColor != null
-            ? FitButtonStyle.styleFrom(backgroundColor: btnOkColor)
+        type: confirmButtonType ?? FitButtonType.primary,
+        style: confirmButtonColor != null
+            ? FitButtonStyle.styleFrom(backgroundColor: confirmButtonColor)
             : null,
         child: Text(
-          btnOkText ?? '확인',
+          confirmText ?? '확인',
           style: context.button1().copyWith(
-                color: btnOkTextColor ??
+                color: confirmTextColor ??
                     FitButtonStyle.textColorOf(
                       context,
-                      okButtonType ?? FitButtonType.primary,
+                      confirmButtonType ?? FitButtonType.primary,
                       isEnabled: true,
                     ),
               ),
@@ -264,17 +368,17 @@ class FitDialog {
           child: FitButton(
             onPressed: () {
               Navigator.of(context).pop();
-              btnCancelPressed?.call();
+              onCancel?.call();
             },
             isExpanded: true,
             type: cancelButtonType ?? FitButtonType.tertiary,
-            style: btnCancelColor != null
-                ? FitButtonStyle.styleFrom(backgroundColor: btnCancelColor)
+            style: cancelButtonColor != null
+                ? FitButtonStyle.styleFrom(backgroundColor: cancelButtonColor)
                 : null,
             child: Text(
-              btnCancelText ?? '취소',
+              cancelText ?? '취소',
               style: context.button1().copyWith(
-                    color: btnCancelTextColor ??
+                    color: cancelTextColor ??
                         FitButtonStyle.textColorOf(
                           context,
                           cancelButtonType ?? FitButtonType.tertiary,
@@ -289,20 +393,20 @@ class FitDialog {
           child: FitButton(
             onPressed: () {
               Navigator.of(context).pop();
-              btnOkPressed?.call();
+              onConfirm?.call();
             },
             isExpanded: true,
-            type: okButtonType ?? FitButtonType.primary,
-            style: btnOkColor != null
-                ? FitButtonStyle.styleFrom(backgroundColor: btnOkColor)
+            type: confirmButtonType ?? FitButtonType.primary,
+            style: confirmButtonColor != null
+                ? FitButtonStyle.styleFrom(backgroundColor: confirmButtonColor)
                 : null,
             child: Text(
-              btnOkText ?? '확인',
+              confirmText ?? '확인',
               style: context.button1().copyWith(
-                    color: btnOkTextColor ??
+                    color: confirmTextColor ??
                         FitButtonStyle.textColorOf(
                           context,
-                          okButtonType ?? FitButtonType.primary,
+                          confirmButtonType ?? FitButtonType.primary,
                           isEnabled: true,
                         ),
                   ),

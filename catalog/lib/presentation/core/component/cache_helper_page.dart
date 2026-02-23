@@ -25,7 +25,8 @@ class _CacheHelperPageState extends State<CacheHelperPage> {
   void initState() {
     super.initState();
     // 테스트용 기본 URL (Lottie JSON 예시)
-    _urlController.text = 'https://lottie.host/embed/xyz/animation.json';
+    _urlController.text =
+        'https://raw.githubusercontent.com/xvrh/lottie-flutter/master/example/assets/Mobilo/G.json';
   }
 
   @override
@@ -152,7 +153,9 @@ class _CacheHelperPageState extends State<CacheHelperPage> {
                 children: [
                   Text(
                     '상태',
-                    style: context.subtitle6().copyWith(color: colors.textTertiary),
+                    style: context
+                        .subtitle6()
+                        .copyWith(color: colors.textTertiary),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -163,12 +166,16 @@ class _CacheHelperPageState extends State<CacheHelperPage> {
                     const SizedBox(height: 12),
                     Text(
                       '캐시 경로',
-                      style: context.subtitle6().copyWith(color: colors.textTertiary),
+                      style: context
+                          .subtitle6()
+                          .copyWith(color: colors.textTertiary),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       _cachedPath!,
-                      style: context.caption1().copyWith(color: colors.textSecondary),
+                      style: context
+                          .caption1()
+                          .copyWith(color: colors.textSecondary),
                     ),
                   ],
                 ],

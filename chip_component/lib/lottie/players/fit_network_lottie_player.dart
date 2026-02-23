@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 
 import 'fit_file_lottie_player.dart';
 
-/// 네트워크 Lottie 플레이어 (FitCacheHelper 캐싱)
-class FitNetworkLottiePlayer extends StatelessWidget {
+/// 네트워크 Lottie 플레이어입니다.
+///
+/// URL 유효성을 먼저 검사하고, 다운로드/캐시 성공 시 파일 플레이어로 위임합니다.
+class FitNetworkLottiePlayer extends StatefulWidget {
   final String url;
   final double? width;
   final double? height;
@@ -31,30 +33,55 @@ class FitNetworkLottiePlayer extends StatelessWidget {
   });
 
   @override
+  State<FitNetworkLottiePlayer> createState() => _FitNetworkLottiePlayerState();
+}
+
+class _FitNetworkLottiePlayerState extends State<FitNetworkLottiePlayer> {
+  late Future<File?> _cachedFileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _cachedFileFuture = _downloadAndCache(widget.url);
+  }
+
+  @override
+  void didUpdateWidget(covariant FitNetworkLottiePlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.url != widget.url) {
+      _cachedFileFuture = _downloadAndCache(widget.url);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!_isValidNetworkUrl(widget.url)) {
+      return errorWidget ?? _buildFallbackBox();
+    }
+
     return FutureBuilder<File?>(
-      future: _downloadAndCache(url),
+      future: _cachedFileFuture,
       builder: (context, snapshot) {
         // 로딩 중
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return placeholder ?? const SizedBox.shrink();
+          return placeholder ?? _buildFallbackBox();
         }
 
         // 에러 또는 파일 없음
         if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-          return errorWidget ?? const SizedBox.shrink();
+          return errorWidget ?? _buildFallbackBox();
         }
 
         // 캐시된 파일로 재생
         return FitFileLottiePlayer(
           filePath: snapshot.data!.path,
-          width: width,
-          height: height,
+          width: widget.width,
+          height: widget.height,
           errorWidget: errorWidget,
-          fit: fit,
-          repeat: repeat,
-          animate: animate,
-          controller: controller,
+          fit: widget.fit,
+          repeat: widget.repeat,
+          animate: widget.animate,
+          controller: widget.controller,
         );
       },
     );
@@ -62,6 +89,27 @@ class FitNetworkLottiePlayer extends StatelessWidget {
 
   /// FitCacheHelper를 사용한 다운로드 및 캐싱
   Future<File?> _downloadAndCache(String url) async {
-    return await FitCacheHelper.downloadAndCache(url);
+    return FitCacheHelper.downloadAndCache(url);
   }
+
+  /// 네트워크 URL 기본 유효성 검사입니다.
+  bool _isValidNetworkUrl(String value) {
+    final uri = Uri.tryParse(value);
+    if (uri == null) return false;
+    return uri.hasScheme &&
+        (uri.scheme == 'http' || uri.scheme == 'https') &&
+        uri.host.isNotEmpty;
+  }
+
+  /// 로딩/에러 시 레이아웃 흔들림을 막기 위한 fallback 박스입니다.
+  Widget _buildFallbackBox() {
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+    );
+  }
+
+  Widget? get errorWidget => widget.errorWidget;
+
+  Widget? get placeholder => widget.placeholder;
 }

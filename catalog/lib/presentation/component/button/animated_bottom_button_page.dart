@@ -3,7 +3,6 @@ import 'package:catalog/presentation/component/button/view/animated_bottom_butto
 import 'package:catalog/presentation/component/button/view/animated_bottom_button_control_panel.dart';
 import 'package:catalog/presentation/component/button/view/animated_bottom_button_keyboard_panel.dart';
 import 'package:chip_component/button/fit_animated_bottom_button.dart';
-import 'package:chip_component/button/fit_button.dart';
 import 'package:chip_foundation/buttonstyle.dart';
 import 'package:chip_foundation/colors.dart';
 import 'package:chip_foundation/textstyle.dart';
@@ -117,7 +116,7 @@ class _AnimatedBottomButtonPageState extends State<AnimatedBottomButtonPage> {
                   const SizedBox(height: 16),
                   AnimatedBottomButtonBottomSheetPanel(
                     onShowBasic: _showBasicBottomSheet,
-                    onShowDraggable: _showDraggableBottomSheet,
+                    onShowOverflow: _showOverflowBottomSheet,
                     onShowMultiple: _showMultipleFieldBottomSheet,
                   ),
                 ],
@@ -165,26 +164,16 @@ class _AnimatedBottomButtonPageState extends State<AnimatedBottomButtonPage> {
     );
   }
 
-  void _showDraggableBottomSheet() {
+  void _showOverflowBottomSheet() {
     _lockKeyboardTestFocus();
 
-    FitBottomSheet.showDraggable(
+    FitBottomSheet.show(
       context,
       config: const FitBottomSheetConfig(
         isShowCloseButton: true,
-        heightFactor: 0.55,
-        minHeightFactor: 0.35,
-        maxHeightFactor: 0.97,
       ),
       onClosed: _unlockKeyboardTestFocus,
-      topContent: (sheetContext) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 60, 0),
-        child: Text(
-          'Draggable/Full Test',
-          style: sheetContext.h2(),
-        ),
-      ),
-      scrollContent: (sheetContext) {
+      content: (sheetContext) {
         return _DraggableBottomSheetContent(
           onSubmit: (value) {
             Navigator.pop(sheetContext);
@@ -198,22 +187,14 @@ class _AnimatedBottomButtonPageState extends State<AnimatedBottomButtonPage> {
   void _showMultipleFieldBottomSheet() {
     _lockKeyboardTestFocus();
 
-    FitBottomSheet.showFull(
+    FitBottomSheet.show(
       context,
       config: const FitBottomSheetConfig(
         isShowCloseButton: true,
         isShowTopBar: false,
-        heightFactor: 0.97,
       ),
       onClosed: _unlockKeyboardTestFocus,
-      topContent: (sheetContext) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 25, 60, 0),
-        child: Text(
-          'Multiple TextFields',
-          style: sheetContext.h2(),
-        ),
-      ),
-      scrollContent: (sheetContext) {
+      content: (sheetContext) {
         return _MultipleFieldBottomSheetContent(
           onSubmit: (name, email, _) {
             Navigator.pop(sheetContext);
@@ -321,7 +302,8 @@ class _BasicBottomSheetContentState extends State<_BasicBottomSheetContent> {
   }
 }
 
-class _DraggableBottomSheetContent extends StatefulWidget {
+class _DraggableBottomSheetContent extends StatefulWidget
+    implements FitBottomSheetSelfManagedBody {
   const _DraggableBottomSheetContent({
     required this.onSubmit,
   });
@@ -336,6 +318,36 @@ class _DraggableBottomSheetContent extends StatefulWidget {
 class _DraggableBottomSheetContentState
     extends State<_DraggableBottomSheetContent> {
   late final TextEditingController _controller;
+
+  Widget _buildOverflowList(
+    BuildContext context,
+    FitColors colors, {
+    required bool scrollable,
+  }) {
+    final primaryController = PrimaryScrollController.maybeOf(context);
+
+    return ListView.builder(
+      controller: scrollable ? primaryController : null,
+      primary: false,
+      shrinkWrap: !scrollable,
+      physics: scrollable
+          ? const ClampingScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      itemCount: 20,
+      itemBuilder: (context, index) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: colors.fillAlternative,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text('Item ${index + 1}', style: context.body3()),
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -352,35 +364,71 @@ class _DraggableBottomSheetContentState
   @override
   Widget build(BuildContext context) {
     final colors = context.fitColors;
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '드래그 중에도 입력 필드와 키보드 배치가 안정적인지 확인합니다.',
-            style: context.body4().copyWith(color: colors.textSecondary),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _controller,
-            decoration: _textFieldDecoration(context),
-            style: context.body3().copyWith(color: colors.textPrimary),
-          ),
-          const SizedBox(height: 16),
-          FitButton(
-            isExpanded: true,
-            type: FitButtonType.secondary,
-            onPressed: () => widget.onSubmit(_controller.text),
-            child: Text(
-              '닫기',
-              style: context.button1(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final hasBoundedHeight = constraints.hasBoundedHeight;
+
+        return Column(
+          mainAxisSize: hasBoundedHeight ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Overflow Scroll + TextField',
+                    style: context.h2(),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '콘텐츠가 길면 body 스크롤, 스냅은 접힘/펼침으로 동작합니다.',
+                    style:
+                        context.body4().copyWith(color: colors.textSecondary),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _controller,
+                    decoration: _textFieldDecoration(context),
+                    style: context.body3().copyWith(color: colors.textPrimary),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 240),
-        ],
-      ),
+            if (hasBoundedHeight)
+              Expanded(
+                child: _buildOverflowList(
+                  context,
+                  colors,
+                  scrollable: true,
+                ),
+              )
+            else
+              SizedBox(
+                height: 240,
+                child: _buildOverflowList(
+                  context,
+                  colors,
+                  scrollable: true,
+                ),
+              ),
+            SizedBox(height: keyboardVisible ? 0 : 16),
+        FitAnimatedBottomButton(
+          type: FitButtonType.secondary,
+          useSafeArea: false,
+          backgroundColor: colors.backgroundBase,
+          onPressed: () => widget.onSubmit(_controller.text),
+          child: Text(
+            '닫기',
+                style: context.button1(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -421,45 +469,59 @@ class _MultipleFieldBottomSheetContentState
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SheetTextField(
-            controller: _nameController,
-            label: 'Name',
-            hint: '이름 입력',
+    final colors = context.fitColors;
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Multiple TextFields',
+                style: context.h2(),
+              ),
+              const SizedBox(height: 12),
+              _SheetTextField(
+                controller: _nameController,
+                label: 'Name',
+                hint: '이름 입력',
+              ),
+              const SizedBox(height: 12),
+              _SheetTextField(
+                controller: _emailController,
+                label: 'Email',
+                hint: '이메일 입력',
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 12),
+              _SheetTextField(
+                controller: _messageController,
+                label: 'Message',
+                hint: '메시지 입력',
+                maxLines: 4,
+              ),
+              SizedBox(height: keyboardVisible ? 16 : 16),
+            ],
           ),
-          const SizedBox(height: 12),
-          _SheetTextField(
-            controller: _emailController,
-            label: 'Email',
-            hint: '이메일 입력',
-            keyboardType: TextInputType.emailAddress,
+        ),
+        FitAnimatedBottomButton(
+          useSafeArea: false,
+          backgroundColor: colors.backgroundBase,
+          onPressed: () => widget.onSubmit(
+            _nameController.text,
+            _emailController.text,
+            _messageController.text,
           ),
-          const SizedBox(height: 12),
-          _SheetTextField(
-            controller: _messageController,
-            label: 'Message',
-            hint: '메시지 입력',
-            maxLines: 4,
+          child: Text(
+            '제출',
+            style: context.button1(),
           ),
-          const SizedBox(height: 16),
-          FitButton(
-            isExpanded: true,
-            onPressed: () => widget.onSubmit(
-              _nameController.text,
-              _emailController.text,
-              _messageController.text,
-            ),
-            child: Text(
-              '제출',
-              style: context.button1(),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

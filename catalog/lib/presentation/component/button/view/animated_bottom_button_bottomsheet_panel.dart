@@ -8,12 +8,12 @@ class AnimatedBottomButtonBottomSheetPanel extends StatelessWidget {
   const AnimatedBottomButtonBottomSheetPanel({
     super.key,
     required this.onShowBasic,
-    required this.onShowDraggable,
+    required this.onShowOverflow,
     required this.onShowMultiple,
   });
 
   final VoidCallback onShowBasic;
-  final VoidCallback onShowDraggable;
+  final VoidCallback onShowOverflow;
   final VoidCallback onShowMultiple;
 
   @override
@@ -28,8 +28,8 @@ class AnimatedBottomButtonBottomSheetPanel extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _PresetButton(
-            label: 'Draggable/Full + TextField',
-            onPressed: onShowDraggable,
+            label: 'Overflow Scroll + TextField',
+            onPressed: onShowOverflow,
           ),
           const SizedBox(height: 8),
           _PresetButton(

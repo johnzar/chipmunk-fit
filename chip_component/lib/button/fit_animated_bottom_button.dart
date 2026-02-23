@@ -136,6 +136,7 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
 
   /// 키보드 상태(anim)에 따라 컨테이너 패딩을 계산합니다.
   EdgeInsets _resolveContainerPadding(double anim, double safeBottomPadding) {
+    final topPadding = 12.h * anim;
     final bottomPadding = widget.useSafeArea
         ? (safeBottomPadding > 0 ? safeBottomPadding : 16.h * anim)
         : 0.0;
@@ -143,7 +144,7 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
     return EdgeInsets.only(
       left: 20.w * anim,
       right: 20.w * anim,
-      top: 12.h * anim,
+      top: topPadding,
       bottom: bottomPadding,
     );
   }
@@ -160,11 +161,12 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
     final query = MediaQuery.of(context);
     final bgColor = widget.backgroundColor ?? colors.backgroundAlternative;
     final safeBottomPadding = _resolveSafeBottomPadding(query);
-
     return TweenAnimationBuilder<double>(
       duration: _kAnimDuration,
       curve: Curves.easeOutCubic,
-      tween: Tween(end: _isKeyboardVisible ? 0.0 : 1.0),
+      tween: Tween(
+        end: _isKeyboardVisible ? 0.0 : 1.0,
+      ),
       builder: (context, anim, _) => Container(
         width: double.infinity,
         decoration: BoxDecoration(

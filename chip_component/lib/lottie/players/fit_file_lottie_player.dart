@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:dotlottie_loader/dotlottie_loader.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 import 'fit_lottie_renderer.dart';
+import 'fit_lottie_playback_mixin.dart';
 
 /// 로컬 파일 Lottie 플레이어
 /// - 캐시된 파일 또는 로컬 파일 재생
@@ -36,66 +36,40 @@ class FitFileLottiePlayer extends StatefulWidget {
 }
 
 class _FitFileLottiePlayerState extends State<FitFileLottiePlayer>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _internalController;
-  bool _disposed = false;
-  LottieComposition? _composition;
+    with
+        SingleTickerProviderStateMixin,
+        FitLottiePlaybackMixin<FitFileLottiePlayer> {
+  @override
+  AnimationController? get externalController => widget.controller;
 
-  /// 외부 컨트롤러가 있으면 사용, 없으면 내부 컨트롤러 사용
-  AnimationController get _effectiveController => widget.controller ?? _internalController;
+  @override
+  bool get animate => widget.animate;
+
+  @override
+  bool get repeat => widget.repeat;
 
   @override
   void initState() {
     super.initState();
-    _internalController = AnimationController(vsync: this);
+    initPlaybackController();
   }
 
   @override
   void didUpdateWidget(FitFileLottiePlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // animate 또는 repeat 옵션이 변경되면 애니메이션 재설정
-    if (oldWidget.animate != widget.animate || oldWidget.repeat != widget.repeat) {
-      _applyAnimationSettings();
+    // animate/repeat/controller 변경 시 현재 composition 기준으로 동기화.
+    if (oldWidget.animate != widget.animate ||
+        oldWidget.repeat != widget.repeat ||
+        oldWidget.controller != widget.controller) {
+      applyPlaybackSettings();
     }
   }
 
   @override
   void dispose() {
-    _disposed = true;
-    // 외부 컨트롤러는 dispose하지 않음
-    if (widget.controller == null) {
-      _internalController.dispose();
-    }
+    disposePlaybackController();
     super.dispose();
-  }
-
-  /// Composition 로드 시 애니메이션 설정
-  void _configureAnimation(LottieComposition? composition) {
-    if (_disposed || composition == null) return;
-
-    _composition = composition;
-    final duration = composition.duration;
-    if (duration.inMilliseconds <= 0) return;
-
-    _effectiveController.duration = duration;
-    _applyAnimationSettings();
-  }
-
-  /// 애니메이션 설정 적용 (옵션 변경 시 재사용)
-  void _applyAnimationSettings() {
-    if (_disposed || _composition == null) return;
-
-    _effectiveController.stop();
-    _effectiveController.reset();
-
-    if (widget.animate) {
-      if (widget.repeat) {
-        _effectiveController.repeat();
-      } else {
-        _effectiveController.forward();
-      }
-    }
   }
 
   @override
@@ -122,15 +96,16 @@ class _FitFileLottiePlayerState extends State<FitFileLottiePlayer>
 
         return FitLottieRenderer(
           animationBytes: dotLottie.animations.values.first,
-          controller: _effectiveController,
+          controller: effectiveController,
           width: widget.width,
           height: widget.height,
           fit: widget.fit,
           errorWidget: widget.errorWidget,
-          onCompositionLoaded: _configureAnimation,
+          onCompositionLoaded: configureComposition,
         );
       },
-      errorBuilder: (_, __, ___) => widget.errorWidget ?? const SizedBox.shrink(),
+      errorBuilder: (_, __, ___) =>
+          widget.errorWidget ?? const SizedBox.shrink(),
     );
   }
 }

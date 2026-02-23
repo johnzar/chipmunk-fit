@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sprung/sprung.dart';
 
 /// iOS 쿠퍼티노 스타일의 Chip 컨테이너 위젯
 ///
@@ -11,6 +12,9 @@ import 'package:flutter/material.dart';
 /// - 선택 상태 관리
 /// - 내부 컨텐츠는 child로 완전히 커스터마이징
 class FitChip extends StatefulWidget {
+  static const double defaultPressedScale = 0.97;
+  static const Duration defaultAnimationDuration = Duration(milliseconds: 600);
+
   /// 칩 내부 컨텐츠
   final Widget child;
 
@@ -50,13 +54,19 @@ class FitChip extends StatefulWidget {
   /// 활성화 상태
   final bool isEnabled;
 
-  /// 애니메이션 지속 시간
+  /// 칩의 눌림/복원 모션 duration 오버라이드용 파라미터입니다.
+  ///
+  /// 기본 모션 정책은 [FitButton]과 동일한 `600ms`입니다.
+  /// 향후 제거될 수 있는 하위 호환 옵션입니다.
   final Duration animationDuration;
 
   /// 고도 (그림자)
   final double elevation;
 
-  /// 탭 시 스케일 배율
+  /// 칩의 눌림 스케일 오버라이드용 파라미터입니다.
+  ///
+  /// 기본 모션 정책은 [FitButton]과 동일한 `0.97`입니다.
+  /// 향후 제거될 수 있는 하위 호환 옵션입니다.
   final double pressedScale;
 
   const FitChip({
@@ -74,9 +84,11 @@ class FitChip extends StatefulWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     this.borderRadius = 16.0,
     this.isEnabled = true,
-    this.animationDuration = const Duration(milliseconds: 200),
+    @Deprecated('Use default FitButton motion policy.')
+    this.animationDuration = defaultAnimationDuration,
     this.elevation = 0,
-    this.pressedScale = 0.95,
+    @Deprecated('Use default FitButton motion policy.')
+    this.pressedScale = defaultPressedScale,
   });
 
   @override
@@ -84,21 +96,48 @@ class FitChip extends StatefulWidget {
 }
 
 class _FitChipState extends State<FitChip> {
+  static final _kPressedCurve = Sprung.custom(damping: 8);
+  static final _kReleasedCurve = Sprung.custom(damping: 6);
+  static const _kMinPressedVisibleDuration = Duration(milliseconds: 80);
+
   bool _isPressed = false;
-  bool get _isEnabled => widget.isEnabled && (widget.onTap != null || widget.onSelected != null);
+  DateTime? _pressedAt;
+  int _pressVersion = 0;
+  bool get _isEnabled =>
+      widget.isEnabled && (widget.onTap != null || widget.onSelected != null);
 
   void _onTapDown(TapDownDetails details) {
     if (_isEnabled) {
+      _pressVersion += 1;
+      _pressedAt = DateTime.now();
       setState(() => _isPressed = true);
     }
   }
 
-  void _onTapUp(TapUpDetails details) {
-    setState(() => _isPressed = false);
+  Future<void> _onTapUp(TapUpDetails details) async {
+    final version = _pressVersion;
     _handleTap();
+    await _releasePressed(version);
   }
 
   void _onTapCancel() {
+    _pressVersion += 1;
+    _pressedAt = null;
+    setState(() => _isPressed = false);
+  }
+
+  Future<void> _releasePressed(int version) async {
+    final pressedAt = _pressedAt;
+    if (pressedAt != null) {
+      final elapsed = DateTime.now().difference(pressedAt);
+      final remaining = _kMinPressedVisibleDuration - elapsed;
+      if (remaining > Duration.zero) {
+        await Future.delayed(remaining);
+      }
+    }
+
+    if (!mounted || version != _pressVersion) return;
+    _pressedAt = null;
     setState(() => _isPressed = false);
   }
 
@@ -120,7 +159,9 @@ class _FitChipState extends State<FitChip> {
     final Color backgroundColor = widget.isSelected
         ? (widget.selectedBackgroundColor ??
             theme.primaryColor.withValues(alpha: 0.1))
-        : (widget.backgroundColor ?? theme.chipTheme.backgroundColor ?? Colors.grey.shade200);
+        : (widget.backgroundColor ??
+            theme.chipTheme.backgroundColor ??
+            Colors.grey.shade200);
 
     final Color borderColor = widget.isSelected
         ? (widget.selectedBorderColor ?? theme.primaryColor)
@@ -136,16 +177,23 @@ class _FitChipState extends State<FitChip> {
         ? backgroundColor
         : backgroundColor.withValues(alpha: backgroundColor.a * 0.5);
 
+    final effectiveScale = widget.pressedScale;
+    final effectiveDuration = widget.animationDuration;
+
     return GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
-      child: AnimatedScale(
-        scale: _isPressed ? widget.pressedScale : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: AnimatedContainer(
-          duration: widget.animationDuration,
-          curve: Curves.easeOut,
+      child: AnimatedContainer(
+        duration: effectiveDuration,
+        curve: _isPressed ? _kPressedCurve : _kReleasedCurve,
+        transform: Matrix4.diagonal3Values(
+          _isPressed ? effectiveScale : 1.0,
+          _isPressed ? effectiveScale : 1.0,
+          1.0,
+        ),
+        transformAlignment: Alignment.center,
+        child: Container(
           padding: widget.padding,
           decoration: BoxDecoration(
             color: effectiveBackgroundColor,

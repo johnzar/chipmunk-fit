@@ -1,17 +1,13 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import 'fit_image.dart';
 import 'fit_image_shape.dart';
-import 'http/fit_http_client_with_timeout.dart';
-import 'squircle/fit_squircle_border_painter.dart';
-import 'squircle/fit_squircle_clipper.dart';
 
-/// 캐시된 네트워크 이미지 위젯
+/// 캐시된 네트워크 이미지 호환 래퍼입니다.
 ///
-/// - 네트워크 이미지 로드 및 캐싱 (30일)
-/// - RECTANGLE, SQUIRCLE, CIRCLE 형태 지원
-/// - 테두리, fade-in 애니메이션 지원
+/// 신규 코드에서는 `FitImage.network` 사용을 권장합니다.
+@Deprecated('Use FitImage.network instead.')
 class FitCachedNetworkImage extends StatelessWidget {
   /// 이미지 URL
   final String imageUrl;
@@ -49,19 +45,8 @@ class FitCachedNetworkImage extends StatelessWidget {
   /// 메모리 캐시 높이 (성능 최적화)
   final int? memCacheHeight;
 
-  static const _cacheKey = 'fortune_caching_key';
-
-  /// 공유 캐시 매니저 (30일 만료)
-  static final CacheManager cacheManager = CacheManager(
-    Config(
-      _cacheKey,
-      stalePeriod: const Duration(days: 30),
-      repo: JsonCacheInfoRepository(databaseName: _cacheKey),
-      fileService: HttpFileService(
-        httpClient: FitHttpClientWithTimeout(),
-      ),
-    ),
-  );
+  /// 하위 호환을 위한 기본 캐시 매니저(30일).
+  static CacheManager get cacheManager => FitImage.defaultCacheManager;
 
   const FitCachedNetworkImage({
     super.key,
@@ -81,79 +66,20 @@ class FitCachedNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl.isEmpty) {
-      return errorWidget ?? const SizedBox.shrink();
-    }
-
-    final image = CachedNetworkImage(
+    return FitImage.network(
       imageUrl: imageUrl,
       width: width,
       height: height,
       fit: fit,
-      cacheManager: cacheManager,
+      imageShape: imageShape,
+      borderWidth: borderWidth,
+      borderColor: borderColor,
       fadeInDuration: fadeInDuration,
-      fadeOutDuration: const Duration(milliseconds: 100),
-      placeholderFadeInDuration: Duration.zero,
+      placeholder: placeholder,
+      errorWidget: errorWidget,
       memCacheWidth: memCacheWidth,
       memCacheHeight: memCacheHeight,
-      placeholder: placeholder != null ? (_, __) => placeholder! : null,
-      errorWidget: errorWidget != null ? (_, __, ___) => errorWidget! : null,
+      cacheManager: cacheManager,
     );
-
-    return _buildShapedImage(image);
-  }
-
-  /// 형태에 맞게 이미지 래핑.
-  Widget _buildShapedImage(Widget child) {
-    switch (imageShape) {
-      case FitImageShape.SQUIRCLE:
-        return SizedBox(
-          width: width,
-          height: height,
-          child: CustomPaint(
-            painter: FitSquircleBorderPainter(
-              borderWidth: borderWidth,
-              borderColor: borderColor,
-            ),
-            child: ClipPath(
-              clipper: const FitSquircleClipper(),
-              child: child,
-            ),
-          ),
-        );
-
-      case FitImageShape.CIRCLE:
-        return Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            border: _buildBorder(),
-            shape: BoxShape.circle,
-          ),
-          child: ClipOval(child: child),
-        );
-
-      case FitImageShape.RECTANGLE:
-        if (borderWidth != null && borderWidth! > 0 && borderColor != null) {
-          return Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(border: _buildBorder()),
-            child: child,
-          );
-        }
-        return child;
-
-      case FitImageShape.NONE:
-        return child;
-    }
-  }
-
-  /// 테두리 생성
-  BoxBorder? _buildBorder() {
-    if (borderWidth != null && borderWidth! > 0 && borderColor != null) {
-      return Border.all(color: borderColor!, width: borderWidth!);
-    }
-    return null;
   }
 }

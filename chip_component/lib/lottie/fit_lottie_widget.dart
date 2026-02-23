@@ -5,22 +5,11 @@ import 'players/fit_asset_lottie_player.dart';
 import 'players/fit_file_lottie_player.dart';
 import 'players/fit_network_lottie_player.dart';
 
-/// 통합 Lottie 위젯 (네트워크/로컬/Asset 지원)
+/// `network / asset / file` 3가지 소스를 통합한 Lottie 위젯입니다.
 ///
-/// 사용 예시:
-/// ```dart
-/// // 네트워크 (자동 캐싱)
-/// FitLottieWidget.network(
-///   url: 'https://...',
-///   placeholder: CircularProgressIndicator(),
-/// )
-///
-/// // Asset
-/// FitLottieWidget.asset(assetPath: 'assets/...')
-///
-/// // 로컬 파일
-/// FitLottieWidget.file(filePath: '/path/...')
-/// ```
+/// - `network`는 내부적으로 캐시 다운로드 경로를 사용합니다.
+/// - `asset`/`file`은 동일한 재생 정책(animate/repeat/controller)을 따릅니다.
+/// - 외부 [controller]가 전달되면 해당 컨트롤러에 재생 상태를 반영합니다.
 class FitLottieWidget extends StatelessWidget {
   final String source;
   final FitLottieSourceType sourceType;
@@ -73,7 +62,7 @@ class FitLottieWidget extends StatelessWidget {
           controller: controller,
         );
 
-  /// Asset Lottie
+  /// 앱 번들 에셋(.lottie) 기반 재생 생성자입니다.
   const FitLottieWidget.asset({
     Key? key,
     required String assetPath,

@@ -1,8 +1,8 @@
 import 'package:chip_foundation/colors.dart';
 import 'package:chip_foundation/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import '../navigation/component/catalog_menu_widgets.dart';
 
 /// Foundation main page
 class FoundationPage extends StatelessWidget {
@@ -15,37 +15,12 @@ class FoundationPage extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            _buildHeader(context),
+            const CatalogMenuHeader(
+              title: 'Foundation',
+              subtitle: '디자인 시스템의 기본 토큰과 사용 기준',
+            ),
             _buildGuideSection(context),
             _buildMenuList(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 헤더 영역
-  Widget _buildHeader(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Foundation',
-              style: context.h1().copyWith(
-                    color: context.fitColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '디자인 시스템의 기본 토큰과 사용 기준',
-              style: context.body3().copyWith(
-                    color: context.fitColors.textSecondary,
-                  ),
-            ),
           ],
         ),
       ),
@@ -60,7 +35,7 @@ class FoundationPage extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: context.fitColors.backgroundElevated,
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: context.fitColors.dividerPrimary,
             ),
@@ -70,14 +45,14 @@ class FoundationPage extends StatelessWidget {
             children: [
               Text(
                 'Foundation Guide',
-                style: context.subtitle5().copyWith(
+                style: context.subtitle4().copyWith(
                       color: context.fitColors.textPrimary,
                     ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Colors와 Typography는 Light/Dark 환경에서 동일한 토큰 규칙으로 동작합니다.',
-                style: context.body4().copyWith(
+                style: context.caption1().copyWith(
                       color: context.fitColors.textSecondary,
                     ),
               ),
@@ -110,88 +85,27 @@ class FoundationPage extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final menu = menus[index];
-            return _buildMenuCard(context, menu);
-          },
-          childCount: menus.length,
-        ),
+        delegate: SliverChildListDelegate.fixed([
+          const CatalogMenuSectionTitle(title: 'Foundation'),
+          ...menus.map((menu) => _buildMenuCard(context, menu)),
+          SizedBox(height: catalogBottomMenuSpacing(context)),
+        ]),
       ),
     );
   }
 
   /// 메뉴 카드
   Widget _buildMenuCard(BuildContext context, _MenuItem menu) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      child: Material(
-        color: context.fitColors.backgroundElevated,
-        borderRadius: BorderRadius.circular(18.r),
-        child: InkWell(
-          onTap: () => context.go(menu.route),
-          borderRadius: BorderRadius.circular(18.r),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            child: Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: menu.iconColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  child: Icon(
-                    menu.icon,
-                    color: menu.iconColor,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        menu.title,
-                        style: context.subtitle3().copyWith(
-                              color: context.fitColors.textPrimary,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        menu.subtitle,
-                        style: context.body4().copyWith(
-                              color: context.fitColors.textSecondary,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: context.fitColors.fillAlternative,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.chevron_right,
-                    color: context.fitColors.textSecondary,
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return CatalogMenuCard(
+      icon: menu.icon,
+      iconColor: menu.iconColor,
+      title: menu.title,
+      subtitle: menu.subtitle,
+      onTap: () => context.go(menu.route),
     );
   }
 }
 
-/// 메뉴 아이템 모델
 class _MenuItem {
   final IconData icon;
   final Color iconColor;

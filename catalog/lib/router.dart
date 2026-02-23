@@ -9,6 +9,7 @@ import 'presentation/component/chip/chip_page.dart';
 import 'presentation/component/image/fit_image_page.dart';
 import 'presentation/component/lottie/lottie_page.dart';
 import 'presentation/component/radio/radio_button_page.dart';
+import 'presentation/component/switch/switch_button_page.dart';
 import 'presentation/core/component/cache_helper_page.dart';
 import 'presentation/core/component/delta_viewer_page.dart';
 import 'presentation/foundation/color/color_page.dart';
@@ -67,6 +68,12 @@ final GoRouter catalogRouter = GoRouter(
           path: 'radio_button',
           builder: (BuildContext context, GoRouterState state) {
             return const RadioButtonPage();
+          },
+        ),
+        GoRoute(
+          path: 'switch_button',
+          builder: (BuildContext context, GoRouterState state) {
+            return const SwitchButtonPage();
           },
         ),
         GoRoute(

@@ -1,11 +1,9 @@
-/// 체크박스 스타일
-enum FitCheckBoxStyle {
-  /// 기본 스타일 (Material Design)
-  material,
+import 'fit_checkbox_style.dart';
 
-  /// 라운드 스타일
-  rounded,
+export 'fit_checkbox_style.dart';
 
-  /// 아웃라인 스타일
-  outlined,
-}
+/// Deprecated: `FitCheckboxStyle`를 사용하세요.
+@Deprecated(
+  'Use FitCheckboxStyle instead. This alias will be removed in a major release.',
+)
+typedef FitCheckBoxStyle = FitCheckboxStyle;
