@@ -6,8 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('FitDialog', () {
-    testWidgets('confirm only: confirm callback and dialog close',
-        (tester) async {
+    testWidgets('confirm only: confirm callback and dialog close', (
+      tester,
+    ) async {
       var confirmed = false;
 
       await tester.pumpWidget(
@@ -32,8 +33,9 @@ void main() {
       expect(find.text('Confirm Only'), findsNothing);
     });
 
-    testWidgets('confirm + cancel: each callback works and closes',
-        (tester) async {
+    testWidgets('confirm + cancel: each callback works and closes', (
+      tester,
+    ) async {
       var confirmCount = 0;
       var cancelCount = 0;
 
@@ -67,8 +69,9 @@ void main() {
       expect(find.text('Confirm Cancel'), findsNothing);
     });
 
-    testWidgets('dismissOnTouchOutside true closes and false keeps open',
-        (tester) async {
+    testWidgets('dismissOnTouchOutside true closes and false keeps open', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _buildHarness((context) {
           FitDialog.show(
@@ -105,30 +108,31 @@ void main() {
     });
 
     testWidgets(
-        'outside dismiss can stay enabled while back dismiss is blocked',
-        (tester) async {
-      await tester.pumpWidget(
-        _buildHarness((context) {
-          FitDialog.show(
-            context: context,
-            title: 'Outside Only',
-            dismissOnTouchOutside: true,
-            dismissOnBackKeyPress: false,
-          );
-        }),
-      );
+      'outside dismiss can stay enabled while back dismiss is blocked',
+      (tester) async {
+        await tester.pumpWidget(
+          _buildHarness((context) {
+            FitDialog.show(
+              context: context,
+              title: 'Outside Only',
+              dismissOnTouchOutside: true,
+              dismissOnBackKeyPress: false,
+            );
+          }),
+        );
 
-      await _openDialog(tester);
-      expect(find.text('Outside Only'), findsOneWidget);
+        await _openDialog(tester);
+        expect(find.text('Outside Only'), findsOneWidget);
 
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.text('Outside Only'), findsOneWidget);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.text('Outside Only'), findsOneWidget);
 
-      await tester.tapAt(const Offset(8, 8));
-      await tester.pumpAndSettle();
-      expect(find.text('Outside Only'), findsNothing);
-    });
+        await tester.tapAt(const Offset(8, 8));
+        await tester.pumpAndSettle();
+        expect(find.text('Outside Only'), findsNothing);
+      },
+    );
 
     testWidgets('showFitDialog wrapper maps to show behavior', (tester) async {
       var confirmCount = 0;
@@ -161,8 +165,9 @@ void main() {
       expect(confirmCount, 1);
     });
 
-    testWidgets('showErrorDialog wrapper shows message and confirm callback',
-        (tester) async {
+    testWidgets('showErrorDialog wrapper shows message and confirm callback', (
+      tester,
+    ) async {
       var confirmCount = 0;
 
       await tester.pumpWidget(
@@ -227,12 +232,108 @@ void main() {
 
       final scaffoldContext = tester.element(find.byType(Scaffold).first);
       final screenHeight = MediaQuery.of(scaffoldContext).size.height;
-      final cappedRect =
-          tester.getRect(find.byKey(const ValueKey('fit_dialog_height_cap')));
+      final cappedRect = tester.getRect(
+        find.byKey(const ValueKey('fit_dialog_height_cap')),
+      );
 
       expect(cappedRect.height, lessThanOrEqualTo(screenHeight * 0.82 + 1));
       expect(find.byType(SingleChildScrollView), findsOneWidget);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('dialog width is capped at 420 on wide screens', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(2200, 1400);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        _buildHarness((context) {
+          FitDialog.show(
+            context: context,
+            title: 'Wide Dialog',
+            subTitle: 'foldable width check',
+            confirmText: '확인',
+          );
+        }),
+      );
+
+      await _openDialog(tester);
+
+      final cappedRect = tester.getRect(
+        find.byKey(const ValueKey('fit_dialog_height_cap')),
+      );
+
+      expect(cappedRect.width, lessThanOrEqualTo(FitDialog.defaultMaxWidth + 1));
+    });
+
+    testWidgets('default enter animation still slides dialog into place', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildHarness((context) {
+          FitDialog.show(
+            context: context,
+            title: 'Animated Dialog',
+            confirmText: '확인',
+          );
+        }),
+      );
+
+      await tester.tap(find.byKey(_openDialogKey));
+      await tester.pump();
+
+      final enteringRect = tester.getRect(
+        find.byKey(const ValueKey('fit_dialog_height_cap')),
+      );
+
+      await tester.pumpAndSettle();
+
+      final settledRect = tester.getRect(
+        find.byKey(const ValueKey('fit_dialog_height_cap')),
+      );
+
+      expect(enteringRect.top, lessThan(settledRect.top - 1));
+    });
+
+    testWidgets('dialog keeps dismiss animation when it closes', (
+      tester,
+    ) async {
+      var confirmCount = 0;
+
+      await tester.pumpWidget(
+        _buildHarness((context) {
+          FitDialog.show(
+            context: context,
+            title: 'Dismiss Animated Dialog',
+            confirmText: '확인',
+            onConfirm: () => confirmCount++,
+          );
+        }),
+      );
+
+      await tester.tap(find.byKey(_openDialogKey));
+      await tester.pump();
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('확인'));
+      await tester.pump(const Duration(milliseconds: 150));
+
+      expect(
+        find.byKey(const ValueKey('fit_dialog_height_cap')),
+        findsOneWidget,
+      );
+      expect(tester.hasRunningAnimations, isTrue);
+
+      await tester.pumpAndSettle();
+
+      expect(confirmCount, 1);
+      expect(find.text('Dismiss Animated Dialog'), findsNothing);
     });
   });
 }
@@ -248,10 +349,7 @@ Widget _buildHarness(void Function(BuildContext context) onOpen) {
   return ScreenUtilInit(
     designSize: const Size(390, 844),
     builder: (_, __) => MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        extensions: [lightFitColors],
-      ),
+      theme: ThemeData(useMaterial3: true, extensions: [lightFitColors]),
       home: Scaffold(
         body: Builder(
           builder: (context) {

@@ -1,7 +1,7 @@
 part of 'widgets.dart';
 
-class Skeleton extends StatefulWidget {
-  const Skeleton({
+class FitSkeleton2 extends StatefulWidget {
+  const FitSkeleton2({
     super.key,
     required this.isLoading,
     required this.skeleton,
@@ -21,21 +21,21 @@ class Skeleton extends StatefulWidget {
   final ThemeMode? themeMode;
 
   @override
-  _SkeletonState createState() => _SkeletonState();
+  _FitSkeletonState createState() => _FitSkeletonState();
 }
 
-class _SkeletonState extends State<Skeleton> {
+class _FitSkeletonState extends State<FitSkeleton2> {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
       child: widget.isLoading
-          ? ShimmerWidget(
+          ? FitShimmerWidget(
               shimmerGradient: widget.shimmerGradient,
               darkShimmerGradient: widget.darkShimmerGradient,
               duration: widget.duration,
               themeMode: widget.themeMode,
-              child: _SkeletonWidget(
+              child: _FitSkeletonWidget(
                 isLoading: widget.isLoading,
                 // child: widget.child,
                 skeleton: widget.skeleton,
@@ -46,8 +46,8 @@ class _SkeletonState extends State<Skeleton> {
   }
 }
 
-class _SkeletonWidget extends StatefulWidget {
-  const _SkeletonWidget({
+class _FitSkeletonWidget extends StatefulWidget {
+  const _FitSkeletonWidget({
     required this.isLoading,
     required this.skeleton,
     // required this.child,
@@ -59,10 +59,10 @@ class _SkeletonWidget extends StatefulWidget {
   // final Widget child;
 
   @override
-  __SkeletonWidgetState createState() => __SkeletonWidgetState();
+  __FitSkeletonWidgetState createState() => __FitSkeletonWidgetState();
 }
 
-class __SkeletonWidgetState extends State<_SkeletonWidget> {
+class __FitSkeletonWidgetState extends State<_FitSkeletonWidget> {
   Listenable? _shimmerChanges;
 
   @override
@@ -71,7 +71,7 @@ class __SkeletonWidgetState extends State<_SkeletonWidget> {
     if (_shimmerChanges != null) {
       _shimmerChanges!.removeListener(_onShimmerChange);
     }
-    _shimmerChanges = Shimmer.of(context)?.shimmerChanges;
+    _shimmerChanges = FitShimmer.of(context)?.shimmerChanges;
     if (_shimmerChanges != null) {
       _shimmerChanges!.addListener(_onShimmerChange);
     }
@@ -98,7 +98,7 @@ class __SkeletonWidgetState extends State<_SkeletonWidget> {
     // }
 
     // Collect ancestor shimmer info.
-    final shimmer = Shimmer.of(context)!;
+    final shimmer = FitShimmer.of(context)!;
     if (!shimmer.isSized) {
       // The ancestor Shimmer widget has not laid
       // itself out yet. Return an empty box.

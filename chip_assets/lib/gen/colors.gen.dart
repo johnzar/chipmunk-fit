@@ -14,35 +14,35 @@ import 'package:flutter/material.dart';
 class ChipColors {
   ChipColors._();
 
-  /// Color: #FFBDDEFF
-  static const Color blue200 = Color(0xFFBDDEFF);
+  /// Color: #FFBBE0FF
+  static const Color blue200 = Color(0xFFBBE0FF);
 
-  /// Color: #FF0F2B52
-  static const Color blue200Dark = Color(0xFF0F2B52);
+  /// Color: #FF094475
+  static const Color blue200Dark = Color(0xFF094475);
 
-  /// Color: #FFF4FAFF
-  static const Color blue50 = Color(0xFFF4FAFF);
+  /// Color: #FFE3F3FF
+  static const Color blue50 = Color(0xFFE3F3FF);
 
-  /// Color: #FF0080FF
-  static const Color blue500 = Color(0xFF0080FF);
+  /// Color: #FF008DFF
+  static const Color blue500 = Color(0xFF008DFF);
 
-  /// Color: #FF3399FF
-  static const Color blue500Dark = Color(0xFF3399FF);
+  /// Color: #FF3DA8FF
+  static const Color blue500Dark = Color(0xFF3DA8FF);
 
-  /// Color: #FF0A1A2E
-  static const Color blue50Dark = Color(0xFF0A1A2E);
+  /// Color: #FF0D273D
+  static const Color blue50Dark = Color(0xFF0D273D);
 
-  /// Color: #FF006FDE
-  static const Color blue600 = Color(0xFF006FDE);
+  /// Color: #FF0A79EB
+  static const Color blue600 = Color(0xFF0A79EB);
 
-  /// Color: #FF1A8AFF
-  static const Color blue600Dark = Color(0xFF1A8AFF);
+  /// Color: #FF4499EF
+  static const Color blue600Dark = Color(0xFF4499EF);
 
-  /// Color: #FF0060BD
-  static const Color blue700 = Color(0xFF0060BD);
+  /// Color: #FF1348BA
+  static const Color blue700 = Color(0xFF1348BA);
 
-  /// Color: #FF0D7AE6
-  static const Color blue700Dark = Color(0xFF0D7AE6);
+  /// Color: #FF4B73CA
+  static const Color blue700Dark = Color(0xFF4B73CA);
 
   /// Color: #FF149DE1
   static const Color blueAlphaBase = Color(0xFF149DE1);
@@ -248,35 +248,35 @@ class ChipColors {
   /// Color: #FF31BAE8
   static const Color periwinkleAlphaBaseDark = Color(0xFF31BAE8);
 
-  /// Color: #FFFFD1D1
-  static const Color red200 = Color(0xFFFFD1D1);
+  /// Color: #FFFFD8D8
+  static const Color red200 = Color(0xFFFFD8D8);
 
-  /// Color: #FF6B2E2E
-  static const Color red200Dark = Color(0xFF6B2E2E);
+  /// Color: #FF5C2629
+  static const Color red200Dark = Color(0xFF5C2629);
 
-  /// Color: #FFFFEBEB
-  static const Color red50 = Color(0xFFFFEBEB);
+  /// Color: #FFFFF0F0
+  static const Color red50 = Color(0xFFFFF0F0);
 
-  /// Color: #FFFF2E2E
-  static const Color red500 = Color(0xFFFF2E2E);
+  /// Color: #FFFF3C3C
+  static const Color red500 = Color(0xFFFF3C3C);
 
-  /// Color: #FFFF4C4C
-  static const Color red500Dark = Color(0xFFFF4C4C);
+  /// Color: #FFFF6A6A
+  static const Color red500Dark = Color(0xFFFF6A6A);
 
-  /// Color: #FF3E1E1E
-  static const Color red50Dark = Color(0xFF3E1E1E);
+  /// Color: #FF361A1E
+  static const Color red50Dark = Color(0xFF361A1E);
 
-  /// Color: #FFEF1010
-  static const Color red600 = Color(0xFFEF1010);
+  /// Color: #FFF50E0E
+  static const Color red600 = Color(0xFFF50E0E);
 
-  /// Color: #FFEE3F3F
-  static const Color red600Dark = Color(0xFFEE3F3F);
+  /// Color: #FFEB4747
+  static const Color red600Dark = Color(0xFFEB4747);
 
   /// Color: #FFB30000
   static const Color red700 = Color(0xFFB30000);
 
-  /// Color: #FFCA3838
-  static const Color red700Dark = Color(0xFFCA3838);
+  /// Color: #FFC53D3D
+  static const Color red700Dark = Color(0xFFC53D3D);
 
   /// Color: #FFFC4848
   static const Color redAlphaBase = Color(0xFFFC4848);
@@ -290,41 +290,41 @@ class ChipColors {
   /// Color: #FFFFFF
   static const Color staticWhite = Color(0xFFFFFFFF);
 
-  /// Color: #FFD1BDFF
-  static const Color violet200 = Color(0xFFD1BDFF);
+  /// Color: #FFE0D4FF
+  static const Color violet200 = Color(0xFFE0D4FF);
 
-  /// Color: #FF2D1966
-  static const Color violet200Dark = Color(0xFF2D1966);
+  /// Color: #FF362049
+  static const Color violet200Dark = Color(0xFF362049);
 
-  /// Color: #FFEDE5FF
-  static const Color violet50 = Color(0xFFEDE5FF);
+  /// Color: #FFF3EFFF
+  static const Color violet50 = Color(0xFFF3EFFF);
 
-  /// Color: #FF7B42FF
-  static const Color violet500 = Color(0xFF7B42FF);
+  /// Color: #FF7B42FE
+  static const Color violet500 = Color(0xFF7B42FE);
 
-  /// Color: #FF986CFF
-  static const Color violet500Dark = Color(0xFF986CFF);
+  /// Color: #FF9366FF
+  static const Color violet500Dark = Color(0xFF9366FF);
 
-  /// Color: #FF1A0F3D
-  static const Color violet50Dark = Color(0xFF1A0F3D);
+  /// Color: #FF1E1329
+  static const Color violet50Dark = Color(0xFF1E1329);
 
-  /// Color: #FF6B38E6
-  static const Color violet600 = Color(0xFF6B38E6);
+  /// Color: #FF6330E8
+  static const Color violet600 = Color(0xFF6330E8);
 
-  /// Color: #FF8A5EFF
-  static const Color violet600Dark = Color(0xFF8A5EFF);
+  /// Color: #FF8052F0
+  static const Color violet600Dark = Color(0xFF8052F0);
 
-  /// Color: #FF5B2FCC
-  static const Color violet700 = Color(0xFF5B2FCC);
+  /// Color: #FF4A1FC2
+  static const Color violet700 = Color(0xFF4A1FC2);
 
-  /// Color: #FF7B4FEE
-  static const Color violet700Dark = Color(0xFF7B4FEE);
+  /// Color: #FF6842D4
+  static const Color violet700Dark = Color(0xFF6842D4);
 
-  /// Color: #FF7B42FF
-  static const Color violetAlphaBase = Color(0xFF7B42FF);
+  /// Color: #FF7B42FE
+  static const Color violetAlphaBase = Color(0xFF7B42FE);
 
-  /// Color: #FF986CFF
-  static const Color violetAlphaBaseDark = Color(0xFF986CFF);
+  /// Color: #FF9366FF
+  static const Color violetAlphaBaseDark = Color(0xFF9366FF);
 
   /// Color: #FFFEBD00
   static const Color yellowAlphaBase = Color(0xFFFEBD00);

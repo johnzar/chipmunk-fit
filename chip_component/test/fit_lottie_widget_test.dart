@@ -10,7 +10,7 @@ void main() {
         _buildApp(
           const FitLottieWidget.network(
             url:
-                'https://raw.githubusercontent.com/chipmunk-studio/chipmunk-fit/main/chip_assets/lottie/loading.lottie',
+                'https://bitbucket.org/electlink/design-system/raw/main/fit_assets/lottie/loading.lottie',
             placeholder: Text('loading'),
           ),
         ),

@@ -32,14 +32,11 @@ DialogThemeData dialogTheme(FitColors colors) {
     elevation: 0,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
     titleTextStyle: TextStyle(
-      fontSize: 20.spMin,
+      fontSize: 20.sp,
       fontWeight: FontWeight.w600,
       color: colors.textPrimary,
     ),
-    contentTextStyle: TextStyle(
-      fontSize: 16.spMin,
-      color: colors.textSecondary,
-    ),
+    contentTextStyle: TextStyle(fontSize: 16.sp, color: colors.textSecondary),
   );
 }
 

@@ -88,7 +88,3 @@ flutter:
       fonts:
         - asset: assets/fonts/Pretendard-Bold.ttf
           weight: 700
-    - family: Neodgm
-      fonts:
-        - asset: assets/fonts/neodgm.ttf
-          weight: 400

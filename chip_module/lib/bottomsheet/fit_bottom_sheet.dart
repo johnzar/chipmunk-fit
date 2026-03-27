@@ -52,12 +52,16 @@ class FitBottomSheet {
     required WidgetBuilder builder,
     required FitBottomSheetConfig config,
   }) {
-    return showModalBottomSheet<T>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      isDismissible: false,
-      enableDrag: false,
+    final navigator = Navigator.of(context);
+    final navigatorContext = navigator.context;
+    final localizations = MaterialLocalizations.of(context);
+    // showModalBottomSheet는 InheritedTheme.capture()로 호출 시점의 테마를
+    // 스냅샷하여, 이후 다크모드 전환 등 테마 변경이 반영되지 않습니다.
+    // ModalBottomSheetRoute를 직접 사용하고 capturedThemes를 전달하지 않아
+    // 라이브 테마를 상속받도록 합니다.
+    // 추가로 _ThemeTrackingWrapper가 Navigator context에서 라이브 테마를
+    // 읽어 바텀시트에 명시적으로 전달합니다.
+    return navigator.push(ModalBottomSheetRoute<T>(
       builder: (sheetContext) {
         Widget sheet = builder(sheetContext);
 
@@ -68,9 +72,17 @@ class FitBottomSheet {
           );
         }
 
-        return sheet;
+        return _ThemeTrackingWrapper(
+          navigatorContext: navigatorContext,
+          child: sheet,
+        );
       },
-    );
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
+      barrierLabel: localizations.scrimLabel,
+    ));
   }
 
   static BoxDecoration buildDecoration(
@@ -116,10 +128,64 @@ class FitBottomSheet {
   }) {
     return Bounceable(
       onTap: onTap ?? () => Navigator.pop(context),
-      child: ChipAssets.icons.icXcircleFill24.svg(
+      child: ChipAssets.icons.icCloseCircle24.svg(
         width: _kCloseButtonSize,
         height: _kCloseButtonSize,
       ),
     );
+  }
+}
+
+/// Navigator의 context에서 라이브 테마를 읽어 하위 위젯에 전달하는 래퍼.
+///
+/// overlay 안의 바텀시트가 테마 변경 InheritedWidget 알림을
+/// 안정적으로 수신하지 못하는 경우를 대비하여,
+/// Navigator 위의 Theme에서 직접 읽어 적용합니다.
+class _ThemeTrackingWrapper extends StatefulWidget {
+  const _ThemeTrackingWrapper({
+    required this.navigatorContext,
+    required this.child,
+  });
+
+  final BuildContext navigatorContext;
+  final Widget child;
+
+  @override
+  State<_ThemeTrackingWrapper> createState() => _ThemeTrackingWrapperState();
+}
+
+class _ThemeTrackingWrapperState extends State<_ThemeTrackingWrapper>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+    // AnimatedTheme 애니메이션 완료 후 최종 테마로 한번 더 rebuild
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // overlay 경유 InheritedWidget 전파가 정상이면
+    // AnimatedTheme 갱신 시 자동 rebuild 됩니다.
+    Theme.of(context);
+
+    final liveTheme = Theme.of(widget.navigatorContext);
+    return Theme(data: liveTheme, child: widget.child);
   }
 }

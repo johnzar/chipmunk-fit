@@ -40,16 +40,16 @@
     <color name="periwinkle700_dark">#FF4336D3</color>
 
     <!-- Red Colors -->
-    <color name="red50">#FFFFEBEB</color>
-    <color name="red200">#FFFFD1D1</color>
-    <color name="red500">#FFFF2E2E</color>
-    <color name="red600">#FFEF1010</color>
+    <color name="red50">#FFFFF0F0</color>
+    <color name="red200">#FFFFD8D8</color>
+    <color name="red500">#FFFF3C3C</color>
+    <color name="red600">#FFF50E0E</color>
     <color name="red700">#FFB30000</color>
-    <color name="red50_dark">#FF3E1E1E</color>
-    <color name="red200_dark">#FF6B2E2E</color>
-    <color name="red500_dark">#FFFF4C4C</color>
-    <color name="red600_dark">#FFEE3F3F</color>
-    <color name="red700_dark">#FFCA3838</color>
+    <color name="red50_dark">#FF361A1E</color>
+    <color name="red200_dark">#FF5C2629</color>
+    <color name="red500_dark">#FFFF6A6A</color>
+    <color name="red600_dark">#FFEB4747</color>
+    <color name="red700_dark">#FFC53D3D</color>
 
     <!-- Brick Colors -->
     <color name="brick50">#FFFFE9E3</color>
@@ -88,28 +88,28 @@
     <color name="leaf_green700_dark">#FF12D363</color>
 
     <!-- Violet Colors (SK Electric Brand) -->
-    <color name="violet50">#FFEDE5FF</color>
-    <color name="violet200">#FFD1BDFF</color>
-    <color name="violet500">#FF7B42FF</color>
-    <color name="violet600">#FF6B38E6</color>
-    <color name="violet700">#FF5B2FCC</color>
-    <color name="violet50_dark">#FF1A0F3D</color>
-    <color name="violet200_dark">#FF2D1966</color>
-    <color name="violet500_dark">#FF986CFF</color>
-    <color name="violet600_dark">#FF8A5EFF</color>
-    <color name="violet700_dark">#FF7B4FEE</color>
+    <color name="violet50">#FFF3EFFF</color>
+    <color name="violet200">#FFE0D4FF</color>
+    <color name="violet500">#FF7B42FE</color>
+    <color name="violet600">#FF6330E8</color>
+    <color name="violet700">#FF4A1FC2</color>
+    <color name="violet50_dark">#FF1E1329</color>
+    <color name="violet200_dark">#FF362049</color>
+    <color name="violet500_dark">#FF9366FF</color>
+    <color name="violet600_dark">#FF8052F0</color>
+    <color name="violet700_dark">#FF6842D4</color>
 
     <!-- Blue Colors (SK Electric Secondary) -->
-    <color name="blue50">#FFF4FAFF</color>
-    <color name="blue200">#FFBDDEFF</color>
-    <color name="blue500">#FF0080FF</color>
-    <color name="blue600">#FF006FDE</color>
-    <color name="blue700">#FF0060BD</color>
-    <color name="blue50_dark">#FF0A1A2E</color>
-    <color name="blue200_dark">#FF0F2B52</color>
-    <color name="blue500_dark">#FF3399FF</color>
-    <color name="blue600_dark">#FF1A8AFF</color>
-    <color name="blue700_dark">#FF0D7AE6</color>
+    <color name="blue50">#FFE3F3FF</color>
+    <color name="blue200">#FFBBE0FF</color>
+    <color name="blue500">#FF008DFF</color>
+    <color name="blue600">#FF0A79EB</color>
+    <color name="blue700">#FF1348BA</color>
+    <color name="blue50_dark">#FF0D273D</color>
+    <color name="blue200_dark">#FF094475</color>
+    <color name="blue500_dark">#FF3DA8FF</color>
+    <color name="blue600_dark">#FF4499EF</color>
+    <color name="blue700_dark">#FF4B73CA</color>
 
     <!-- Blue Alpha Colors -->
     <color name="blue_alpha_base">#FF149DE1</color>
@@ -132,7 +132,7 @@
     <color name="periwinkle_alpha_base_dark">#FF31BAE8</color>
 
     <!-- Focus Violet Colors -->
-    <color name="violet_alpha_base">#FF7B42FF</color>
-    <color name="violet_alpha_base_dark">#FF986CFF</color>
+    <color name="violet_alpha_base">#FF7B42FE</color>
+    <color name="violet_alpha_base_dark">#FF9366FF</color>
 
 </resources>

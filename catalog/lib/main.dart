@@ -58,7 +58,8 @@ class CatalogApp extends StatelessWidget {
       builder: (context, child) {
         final lightTheme = catalogLightTheme(context);
         final darkTheme = catalogDarkTheme(context);
-        final isSystemDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+        final isSystemDark =
+            MediaQuery.platformBrightnessOf(context) == Brightness.dark;
 
         return ThemeProvider(
           initTheme: isSystemDark ? darkTheme : lightTheme,
@@ -68,23 +69,17 @@ class CatalogApp extends StatelessWidget {
             SystemChrome.setSystemUIOverlayStyle(
               SystemUiOverlayStyle(
                 statusBarColor: Colors.transparent,
-                statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                statusBarIconBrightness: isDark
+                    ? Brightness.light
+                    : Brightness.dark,
               ),
             );
 
             return MaterialApp.router(
-              title: 'ChipFit Design System',
+              title: 'SK Eleclink Catalog',
               routerConfig: catalogRouter,
               debugShowCheckedModeBanner: false,
               theme: myTheme,
-              builder: (context, child) {
-                return MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: const TextScaler.linear(1.0),
-                  ),
-                  child: child ?? const SizedBox.shrink(),
-                );
-              },
             );
           },
         );

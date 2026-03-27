@@ -16,32 +16,32 @@ class FitSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SkeletonLine(
-            style: SkeletonLineStyle(
+          FitSkeletonLine(
+            style: FitSkeletonLineStyle(
               height: 68,
               randomLength: true,
               borderRadius: BorderRadius.circular(16.r),
             ),
           ),
           const SizedBox(height: 60),
-          SkeletonLine(
-            style: SkeletonLineStyle(
+          FitSkeletonLine(
+            style: FitSkeletonLineStyle(
               height: 100,
               randomLength: true,
               borderRadius: BorderRadius.circular(16.r),
             ),
           ),
           const SizedBox(height: 18),
-          SkeletonLine(
-            style: SkeletonLineStyle(
+          FitSkeletonLine(
+            style: FitSkeletonLineStyle(
               height: 100,
               randomLength: true,
               borderRadius: BorderRadius.circular(16.r),
             ),
           ),
           const SizedBox(height: 18),
-          SkeletonLine(
-            style: SkeletonLineStyle(
+          FitSkeletonLine(
+            style: FitSkeletonLineStyle(
               height: 60,
               randomLength: true,
               borderRadius: BorderRadius.circular(16.r),

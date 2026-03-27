@@ -33,7 +33,6 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
   double _dismissDragDistance = 0.0;
   double _handleDragCloseOffset = 0.0;
   bool _isHandleDragging = false;
-  bool? _wasKeyboardVisible;
   bool _isClosing = false;
 
   @override
@@ -88,9 +87,7 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
     return !rect.contains(globalPosition);
   }
 
-  Widget _wrapWithDismissPointerLayer({
-    required Widget child,
-  }) {
+  Widget _wrapWithDismissPointerLayer({required Widget child}) {
     if (!widget.config.dismissOnBarrierTap) {
       return child;
     }
@@ -146,7 +143,8 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
   }
 
   void _handleDismissGestureEnd() {
-    final shouldDismiss = widget.config.isDismissible &&
+    final shouldDismiss =
+        widget.config.isDismissible &&
         _dismissGestureStartedAtCollapsed &&
         _dismissDragDistance >= _kDismissDragThreshold;
 
@@ -178,8 +176,10 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
   }
 
   double _resolveCollapsedHeight(double maxSheetHeight) {
-    final measured =
-        (_measuredHeight ?? maxSheetHeight).clamp(0.0, maxSheetHeight);
+    final measured = (_measuredHeight ?? maxSheetHeight).clamp(
+      0.0,
+      maxSheetHeight,
+    );
 
     if (!widget.config.enableSnap) return measured.toDouble();
     return math.min(measured.toDouble(), maxSheetHeight * _kCollapsedCapRatio);
@@ -209,10 +209,7 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
     return content.children.any((child) => child is Expanded);
   }
 
-  Widget _buildAutoBody(
-    Widget content, {
-    required bool useNaturalSize,
-  }) {
+  Widget _buildAutoBody(Widget content, {required bool useNaturalSize}) {
     if (content is ScrollView) return content;
     if (_isSelfManagedScrollableLayout(content)) return content;
     if (useNaturalSize) return content;
@@ -243,18 +240,17 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
     );
   }
 
-  void _onTopBarDragUpdate(
-    DragUpdateDetails details,
-    double maxSheetHeight,
-  ) {
+  void _onTopBarDragUpdate(DragUpdateDetails details, double maxSheetHeight) {
     if (maxSheetHeight <= 0) return;
 
     final delta = details.primaryDelta ?? 0.0;
     if (delta == 0) return;
 
     if (!_sheetController.isAttached) {
-      final next =
-          (_handleDragCloseOffset + delta).clamp(0.0, maxSheetHeight * 0.4);
+      final next = (_handleDragCloseOffset + delta).clamp(
+        0.0,
+        maxSheetHeight * 0.4,
+      );
       if (next != _handleDragCloseOffset) {
         setState(() => _handleDragCloseOffset = next.toDouble());
       }
@@ -263,15 +259,19 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
 
     if (_isAtCollapsedExtent() && delta > 0) {
       setState(() {
-        _handleDragCloseOffset =
-            (_handleDragCloseOffset + delta).clamp(0.0, maxSheetHeight * 0.4);
+        _handleDragCloseOffset = (_handleDragCloseOffset + delta).clamp(
+          0.0,
+          maxSheetHeight * 0.4,
+        );
       });
       return;
     }
 
     if (_handleDragCloseOffset > 0) {
-      final nextOffset =
-          (_handleDragCloseOffset + delta).clamp(0.0, double.infinity);
+      final nextOffset = (_handleDragCloseOffset + delta).clamp(
+        0.0,
+        double.infinity,
+      );
       setState(() => _handleDragCloseOffset = nextOffset.toDouble());
       if (_handleDragCloseOffset > 0) {
         return;
@@ -355,21 +355,18 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
     final topBar = !widget.config.isShowTopBar
         ? null
         : enableTopBarDrag
-            ? GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onVerticalDragStart: onTopBarDragStart,
-                onVerticalDragUpdate: onTopBarDragUpdate,
-                onVerticalDragEnd: onTopBarDragEnd,
-                onVerticalDragCancel: onTopBarDragCancel,
-                child: FitBottomSheet.buildTopBar(
-                  context,
-                  handleKey: _dragHandleKey,
-                ),
-              )
-            : FitBottomSheet.buildTopBar(
-                context,
-                handleKey: _dragHandleKey,
-              );
+        ? GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onVerticalDragStart: onTopBarDragStart,
+            onVerticalDragUpdate: onTopBarDragUpdate,
+            onVerticalDragEnd: onTopBarDragEnd,
+            onVerticalDragCancel: onTopBarDragCancel,
+            child: FitBottomSheet.buildTopBar(
+              context,
+              handleKey: _dragHandleKey,
+            ),
+          )
+        : FitBottomSheet.buildTopBar(context, handleKey: _dragHandleKey);
 
     final draggableBody = enableBodyDrag
         ? GestureDetector(
@@ -389,24 +386,36 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
       onPointerCancel: (_) => _handleDismissGestureEnd(),
       child: Container(
         key: _sheetSurfaceKey,
+        clipBehavior: Clip.hardEdge,
         decoration: FitBottomSheet.buildDecoration(
           context,
           widget.config.backgroundColor,
         ),
         child: Stack(
           children: [
-            Column(
-              mainAxisSize: expandBody ? MainAxisSize.max : MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (topBar != null) topBar,
-                if (expandBody)
-                  Expanded(child: draggableBody)
-                else
-                  draggableBody,
-                SizedBox(height: bottomInset),
-              ],
-            ),
+            if (expandBody)
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (topBar != null) topBar,
+                  Expanded(child: draggableBody),
+                  SizedBox(height: bottomInset),
+                ],
+              )
+            else
+              SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (topBar != null) topBar,
+                    draggableBody,
+                    SizedBox(height: bottomInset),
+                  ],
+                ),
+              ),
             if (widget.config.isShowCloseButton)
               Positioned(
                 top: 16,
@@ -427,9 +436,9 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
     required double keyboardInset,
     required Widget child,
   }) {
-    return AnimatedPadding(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
+    // 키보드 인셋은 플랫폼 애니메이션을 그대로 따라가고,
+    // 시트 자체는 닫기 드래그 오프셋만 애니메이션 처리합니다.
+    return Padding(
       padding: EdgeInsets.only(bottom: keyboardInset),
       child: AnimatedSlide(
         duration: _isHandleDragging
@@ -456,13 +465,9 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
     final keyboardInset = rootQuery.viewInsets.bottom;
     final isKeyboardVisible = keyboardInset > 0;
 
-    // 키보드 open/close 전환 시 이전 측정값을 버리고 현재 레이아웃으로 재측정합니다.
-    if (_wasKeyboardVisible != isKeyboardVisible) {
-      _wasKeyboardVisible = isKeyboardVisible;
-      _measuredHeight = null;
-    }
-
-    final bottomInset = keyboardInset > 0 ? 0.0 : safeBottomInset;
+    // 키보드 전환 중에도 하단 safe 영역을 유지해
+    // 시트가 네비게이션 바 영역을 침범했다가 복귀하는 덜컹임을 방지합니다.
+    final bottomInset = safeBottomInset;
     final maxSheetHeight = math.max(
       0.0,
       rootQuery.size.height - topInset - keyboardInset,
@@ -471,18 +476,19 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
     if (maxSheetHeight <= 0) return const SizedBox.shrink();
 
     final content = widget.contentBuilder(context);
-    final persistedContent = KeyedSubtree(
-      key: _contentKey,
-      child: content,
-    );
+    final isSelfManagedContent = _isSelfManagedScrollableLayout(content);
+    final persistedContent = KeyedSubtree(key: _contentKey, child: content);
 
-    _captureMeasuredHeight(maxSheetHeight);
+    if (!isKeyboardVisible) {
+      _captureMeasuredHeight(maxSheetHeight);
+    }
 
     final canSnap = !isKeyboardVisible && _canUseSnap(maxSheetHeight);
     if (!canSnap) {
-      final isSelfManagedContent = _isSelfManagedScrollableLayout(content);
       final needsScrollBody =
-          _measuredHeight != null && _measuredHeight! >= (maxSheetHeight - 1.0);
+          isKeyboardVisible ||
+          (_measuredHeight != null &&
+              _measuredHeight! >= (maxSheetHeight - 1.0));
 
       final sheetContent = Align(
         alignment: Alignment.bottomCenter,
@@ -515,9 +521,10 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
       );
     }
 
-    final collapsedHeight = _resolveCollapsedHeight(maxSheetHeight);
     final collapsedSize =
-        (collapsedHeight / maxSheetHeight).clamp(0.08, 1.0).toDouble();
+        (_resolveCollapsedHeight(maxSheetHeight) / maxSheetHeight)
+            .clamp(0.08, 1.0)
+            .toDouble();
     _collapsedSize = collapsedSize;
 
     final snapEnabled = widget.config.enableSnap && collapsedSize < 0.999;
@@ -543,10 +550,8 @@ class _FitSingleBottomSheetState extends State<_FitSingleBottomSheet> {
               bottomInset: bottomInset,
               enableTopBarDrag: true,
               onTopBarDragStart: _onTopBarDragStart,
-              onTopBarDragUpdate: (details) => _onTopBarDragUpdate(
-                details,
-                maxSheetHeight,
-              ),
+              onTopBarDragUpdate: (details) =>
+                  _onTopBarDragUpdate(details, maxSheetHeight),
               onTopBarDragEnd: _onTopBarDragEnd,
               onTopBarDragCancel: _onTopBarDragCancel,
             );

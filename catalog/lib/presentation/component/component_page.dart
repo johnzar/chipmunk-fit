@@ -99,6 +99,13 @@ class ComponentPage extends StatelessWidget {
                 route: '/animation_text',
               ),
               _ComponentItem(
+                icon: Icons.more_horiz,
+                iconColor: const Color(0xFF8B5CF6),
+                title: 'PageIndicator',
+                subtitle: '페이지 인디케이터 (dot)',
+                route: '/indicator',
+              ),
+              _ComponentItem(
                 icon: Icons.animation,
                 iconColor: const Color(0xFF00BFA5),
                 title: 'Lottie',

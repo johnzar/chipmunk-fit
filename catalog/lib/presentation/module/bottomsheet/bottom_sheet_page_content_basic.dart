@@ -30,7 +30,7 @@ class _DefaultSheetContent extends StatelessWidget {
         const SizedBox(height: 16),
         FitAnimatedBottomButton(
           useSafeArea: false,
-          backgroundColor: colors.backgroundBase,
+          backgroundColor: colors.backgroundElevated,
           onPressed: onClose,
           child: Text('닫기', style: context.button1()),
         ),
@@ -66,10 +66,7 @@ class _OverflowSheetContent extends StatelessWidget
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: colors.fillAlternative,
               borderRadius: BorderRadius.circular(10),
@@ -117,7 +114,7 @@ class _OverflowSheetContent extends StatelessWidget
             const SizedBox(height: 16),
             FitAnimatedBottomButton(
               useSafeArea: false,
-              backgroundColor: colors.backgroundBase,
+              backgroundColor: colors.backgroundElevated,
               onPressed: onClose,
               child: Text('닫기', style: context.button1()),
             ),

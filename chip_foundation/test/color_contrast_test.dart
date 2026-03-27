@@ -72,5 +72,22 @@ void main() {
       // Ensure both paths are exercised, even if selected color matches in some palettes.
       expect(withoutBlend, isNotNull);
     });
+
+    test(
+      'dark inverseDisabled keeps accessible contrast on disabled fills',
+      () {
+        final palette = darkFitColors;
+
+        expect(palette.inverseDisabled, palette.grey600);
+        expect(
+          palette.contrastRatio(palette.violet50, palette.inverseDisabled),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          palette.contrastRatio(palette.red50, palette.inverseDisabled),
+          greaterThanOrEqualTo(4.5),
+        );
+      },
+    );
   });
 }

@@ -37,7 +37,10 @@ abstract class FitAppBarConfig {
   /// 기본 뒤로가기 아이콘
   static Widget _buildDefaultLeadingIcon(BuildContext context) {
     return ChipAssets.icons.icArrowLeft.svg(
-      color: context.fitColors.grey900,
+      colorFilter: ColorFilter.mode(
+        context.fitColors.grey900,
+        BlendMode.srcIn,
+      ),
     );
   }
 
@@ -318,4 +321,3 @@ class FitExtendedAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Size.fromHeight(toolbarHeight + statusBarHeight);
   }
 }
-

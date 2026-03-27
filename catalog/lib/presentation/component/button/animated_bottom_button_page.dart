@@ -75,10 +75,7 @@ class _AnimatedBottomButtonPageState extends State<AnimatedBottomButtonPage> {
       resizeToAvoidBottomInset: true,
       appBar: FitLeadingAppBar(
         title: 'AnimatedBottomButton',
-        actions: const [
-          CatalogThemeSwitcher(),
-          SizedBox(width: 16),
-        ],
+        actions: const [CatalogThemeSwitcher(), SizedBox(width: 16)],
       ),
       body: Column(
         children: [
@@ -117,7 +114,6 @@ class _AnimatedBottomButtonPageState extends State<AnimatedBottomButtonPage> {
                   AnimatedBottomButtonBottomSheetPanel(
                     onShowBasic: _showBasicBottomSheet,
                     onShowOverflow: _showOverflowBottomSheet,
-                    onShowMultiple: _showMultipleFieldBottomSheet,
                   ),
                 ],
               ),
@@ -130,10 +126,7 @@ class _AnimatedBottomButtonPageState extends State<AnimatedBottomButtonPage> {
             useSafeArea: _useSafeArea,
             maxLines: _maxLines,
             onPressed: () => _showSnackBar('버튼 클릭됨'),
-            child: Text(
-              _buttonLabel,
-              style: context.button1(),
-            ),
+            child: Text(_buttonLabel, style: context.button1()),
           ),
         ],
       ),
@@ -169,36 +162,13 @@ class _AnimatedBottomButtonPageState extends State<AnimatedBottomButtonPage> {
 
     FitBottomSheet.show(
       context,
-      config: const FitBottomSheetConfig(
-        isShowCloseButton: true,
-      ),
+      config: const FitBottomSheetConfig(isShowCloseButton: true),
       onClosed: _unlockKeyboardTestFocus,
       content: (sheetContext) {
         return _DraggableBottomSheetContent(
           onSubmit: (value) {
             Navigator.pop(sheetContext);
             _showSnackBar('입력값: $value');
-          },
-        );
-      },
-    );
-  }
-
-  void _showMultipleFieldBottomSheet() {
-    _lockKeyboardTestFocus();
-
-    FitBottomSheet.show(
-      context,
-      config: const FitBottomSheetConfig(
-        isShowCloseButton: true,
-        isShowTopBar: false,
-      ),
-      onClosed: _unlockKeyboardTestFocus,
-      content: (sheetContext) {
-        return _MultipleFieldBottomSheetContent(
-          onSubmit: (name, email, _) {
-            Navigator.pop(sheetContext);
-            _showSnackBar('이름: $name, 이메일: $email');
           },
         );
       },
@@ -273,10 +243,7 @@ class _BasicBottomSheetContentState extends State<_BasicBottomSheetContent> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Basic + TextField',
-                style: context.h2(),
-              ),
+              Text('Basic + TextField', style: context.h2()),
               const SizedBox(height: 10),
               TextField(
                 controller: _controller,
@@ -290,12 +257,9 @@ class _BasicBottomSheetContentState extends State<_BasicBottomSheetContent> {
           type: widget.buttonType,
           maxLines: widget.maxLines,
           useSafeArea: false,
-          backgroundColor: colors.backgroundBase,
+          backgroundColor: colors.backgroundElevated,
           onPressed: () => widget.onSubmit(_controller.text),
-          child: Text(
-            widget.buttonLabel,
-            style: context.button1(),
-          ),
+          child: Text(widget.buttonLabel, style: context.button1()),
         ),
       ],
     );
@@ -304,9 +268,7 @@ class _BasicBottomSheetContentState extends State<_BasicBottomSheetContent> {
 
 class _DraggableBottomSheetContent extends StatefulWidget
     implements FitBottomSheetSelfManagedBody {
-  const _DraggableBottomSheetContent({
-    required this.onSubmit,
-  });
+  const _DraggableBottomSheetContent({required this.onSubmit});
 
   final ValueChanged<String> onSubmit;
 
@@ -379,15 +341,13 @@ class _DraggableBottomSheetContentState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Overflow Scroll + TextField',
-                    style: context.h2(),
-                  ),
+                  Text('Overflow Scroll + TextField', style: context.h2()),
                   const SizedBox(height: 10),
                   Text(
                     '콘텐츠가 길면 body 스크롤, 스냅은 접힘/펼침으로 동작합니다.',
-                    style:
-                        context.body4().copyWith(color: colors.textSecondary),
+                    style: context.body4().copyWith(
+                      color: colors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
@@ -400,167 +360,24 @@ class _DraggableBottomSheetContentState
             ),
             if (hasBoundedHeight)
               Expanded(
-                child: _buildOverflowList(
-                  context,
-                  colors,
-                  scrollable: true,
-                ),
+                child: _buildOverflowList(context, colors, scrollable: true),
               )
             else
               SizedBox(
                 height: 240,
-                child: _buildOverflowList(
-                  context,
-                  colors,
-                  scrollable: true,
-                ),
+                child: _buildOverflowList(context, colors, scrollable: true),
               ),
             SizedBox(height: keyboardVisible ? 0 : 16),
-        FitAnimatedBottomButton(
-          type: FitButtonType.secondary,
-          useSafeArea: false,
-          backgroundColor: colors.backgroundBase,
-          onPressed: () => widget.onSubmit(_controller.text),
-          child: Text(
-            '닫기',
-                style: context.button1(),
-              ),
+            FitAnimatedBottomButton(
+              type: FitButtonType.secondary,
+              useSafeArea: false,
+              backgroundColor: colors.backgroundElevated,
+              onPressed: () => widget.onSubmit(_controller.text),
+              child: Text('닫기', style: context.button1()),
             ),
           ],
         );
       },
-    );
-  }
-}
-
-class _MultipleFieldBottomSheetContent extends StatefulWidget {
-  const _MultipleFieldBottomSheetContent({
-    required this.onSubmit,
-  });
-
-  final void Function(String name, String email, String message) onSubmit;
-
-  @override
-  State<_MultipleFieldBottomSheetContent> createState() =>
-      _MultipleFieldBottomSheetContentState();
-}
-
-class _MultipleFieldBottomSheetContentState
-    extends State<_MultipleFieldBottomSheetContent> {
-  late final TextEditingController _nameController;
-  late final TextEditingController _emailController;
-  late final TextEditingController _messageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController();
-    _emailController = TextEditingController();
-    _messageController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _messageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.fitColors;
-    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Multiple TextFields',
-                style: context.h2(),
-              ),
-              const SizedBox(height: 12),
-              _SheetTextField(
-                controller: _nameController,
-                label: 'Name',
-                hint: '이름 입력',
-              ),
-              const SizedBox(height: 12),
-              _SheetTextField(
-                controller: _emailController,
-                label: 'Email',
-                hint: '이메일 입력',
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 12),
-              _SheetTextField(
-                controller: _messageController,
-                label: 'Message',
-                hint: '메시지 입력',
-                maxLines: 4,
-              ),
-              SizedBox(height: keyboardVisible ? 16 : 16),
-            ],
-          ),
-        ),
-        FitAnimatedBottomButton(
-          useSafeArea: false,
-          backgroundColor: colors.backgroundBase,
-          onPressed: () => widget.onSubmit(
-            _nameController.text,
-            _emailController.text,
-            _messageController.text,
-          ),
-          child: Text(
-            '제출',
-            style: context.button1(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SheetTextField extends StatelessWidget {
-  const _SheetTextField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    this.keyboardType,
-    this.maxLines = 1,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final TextInputType? keyboardType;
-  final int maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.fitColors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: context.subtitle6().copyWith(color: colors.textSecondary),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          decoration: _textFieldDecoration(context, hintText: hint),
-          style: context.body3().copyWith(color: colors.textPrimary),
-        ),
-      ],
     );
   }
 }

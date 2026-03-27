@@ -446,7 +446,8 @@ class _AnimationTextPageState extends State<AnimationTextPage> {
                       _autoStart = value;
                     });
                   },
-                  activeColor: colors.main,
+                  activeThumbColor: colors.main,
+                  activeTrackColor: colors.main.withValues(alpha: 0.5),
                 ),
               ],
             ),
