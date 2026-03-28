@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:bloc_event_transformers/bloc_event_transformers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:side_effect_bloc/side_effect_bloc.dart';
-
 import 'navigation.dart';
+import 'side_effect_mixin.dart';
 
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState>
-    with SideEffectBlocMixin<NavigationEvent, NavigationState, NavigationSideEffect> {
+    with SideEffectMixin<NavigationEvent, NavigationState, NavigationSideEffect> {
 
   NavigationBloc() : super(NavigationState.initial()) {
     on<NavigationInit>(init);
@@ -38,7 +37,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState>
       return;
     }
     await Future.delayed(Duration(milliseconds: 700));
-    produceSideEffect(
+    emitSideEffect(
       NavigationSchemeLandingPage(
         landingRoute: route,
         landingBaseRoute: landingBaseRoute,
@@ -52,7 +51,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState>
     final updatedTabVisited = Map<NavigationTab, bool>.from(state.tabVisited);
 
     if (updatedTabVisited[nextTab] == false) {
-      produceSideEffect(NavigationOnResumeEffect(nextTab));
+      emitSideEffect(NavigationOnResumeEffect(nextTab));
       updatedTabVisited[nextTab] = true;
     } else {
       add(NavigationDebouncedOnTabChanged(nextTab));
@@ -67,10 +66,10 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState>
   }
 
   FutureOr<void> _onResume(NavigationOnResumed event, Emitter<NavigationState> emit) {
-    produceSideEffect(NavigationOnResumeEffect(state.currentTab));
+    emitSideEffect(NavigationOnResumeEffect(state.currentTab));
   }
 
   FutureOr<void> _onDebouncedTabChanged(NavigationDebouncedOnTabChanged event, Emitter<NavigationState> emit) {
-    produceSideEffect(NavigationOnResumeEffect(event.tab));
+    emitSideEffect(NavigationOnResumeEffect(event.tab));
   }
 }

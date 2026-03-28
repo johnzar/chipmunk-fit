@@ -11,8 +11,8 @@ resolution: workspace
 
 dependencies:
   # --- 상태 관리 ---
-  flutter_bloc: ^8.1.6
-  bloc_event_transformers: ^1.0.2+1
+  flutter_bloc: ^9.1.1
+  bloc_event_transformers: ^2.0.0
   equatable: ^2.0.7
 
   # --- 데이터 모델링 ---
@@ -26,9 +26,9 @@ dev_dependencies:
     sdk: flutter
 
   # --- 코드 생성 ---
-  build_runner: ^2.6.0
-  freezed: ^3.2.3
-  flutter_gen_runner: ^5.12.0
+  build_runner: ^2.13.1
+  freezed: ^3.2.5
+  flutter_gen_runner: ^5.13.0
 
   # --- Lint ---
   flutter_lints: ^6.0.0
