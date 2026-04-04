@@ -8,7 +8,7 @@ import 'package:chip_module/scaffold/fit_scaffold.dart';
 import 'package:chip_module/skeletons/skeletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:side_effect_bloc/side_effect_bloc.dart';
+import 'bloc/side_effect_mixin.dart';
 
 import 'bloc/navigation.dart';
 import 'component/bottom_navigation_bar.dart';

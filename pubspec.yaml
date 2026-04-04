@@ -36,7 +36,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
-  melos: ^7.1.0
+  melos: ^7.5.0
 
 melos:
   scripts:

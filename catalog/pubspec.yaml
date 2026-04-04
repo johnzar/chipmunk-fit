@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
 
   # ChipFit 디자인 시스템
   chip_foundation:
@@ -27,7 +27,6 @@ dependencies:
 
   bloc_concurrency:
   flutter_bloc:
-  side_effect_bloc:
   flutter_screenutil:
   bloc_event_transformers:
   bloc:
