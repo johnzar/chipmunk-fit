@@ -41,6 +41,7 @@ class TextStyleCategoryTabs extends StatelessWidget {
                   selectedBorderColor: context.fitColors.main,
                   borderRadius: 12,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  pressedScale: 0.98,
                   child: Text(
                     name,
                     style: context.body4().copyWith(

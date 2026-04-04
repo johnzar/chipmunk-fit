@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class FitSkeletonTheme extends InheritedWidget {
+class SkeletonTheme extends InheritedWidget {
   final LinearGradient? shimmerGradient;
   final LinearGradient? darkShimmerGradient;
   final ThemeMode? themeMode;
 
-  const FitSkeletonTheme({
+  const SkeletonTheme({
     super.key,
     required super.child,
     this.shimmerGradient,
@@ -13,11 +13,11 @@ class FitSkeletonTheme extends InheritedWidget {
     this.themeMode,
   });
 
-  static FitSkeletonTheme? of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<FitSkeletonTheme>();
+  static SkeletonTheme? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SkeletonTheme>();
 
   @override
-  bool updateShouldNotify(FitSkeletonTheme oldWidget) =>
+  bool updateShouldNotify(SkeletonTheme oldWidget) =>
       oldWidget.themeMode != themeMode ||
       oldWidget.shimmerGradient != shimmerGradient ||
       oldWidget.darkShimmerGradient != darkShimmerGradient;

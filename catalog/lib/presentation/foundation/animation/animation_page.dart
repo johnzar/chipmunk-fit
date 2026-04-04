@@ -176,7 +176,7 @@ class _AnimationPageState extends State<AnimationPage> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isSelected ? context.fitColors.main.withValues(alpha: 0.1) : null,
+                    color: isSelected ? context.fitColors.main.withOpacity(0.1) : null,
                     borderRadius: BorderRadius.circular(4.r),
                     border: Border.all(
                       color: isSelected ? context.fitColors.main : Colors.transparent,
@@ -318,7 +318,7 @@ class _AnimationPageState extends State<AnimationPage> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? context.fitColors.main.withValues(alpha: 0.15)
+                          ? context.fitColors.main.withOpacity(0.15)
                           : context.fitColors.backgroundElevated,
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(
@@ -555,7 +555,7 @@ class _AnimationPageState extends State<AnimationPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: context.fitColors.main.withValues(alpha: 0.1),
+                color: context.fitColors.main.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(4.r),
               ),
               child: Text(
@@ -593,7 +593,7 @@ class _AnimationPageState extends State<AnimationPage> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: context.fitColors.main.withValues(alpha: 0.3),
+            color: context.fitColors.main.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

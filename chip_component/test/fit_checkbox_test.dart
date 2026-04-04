@@ -1,3 +1,5 @@
+import 'dart:ui' show CheckedState, SemanticsAction, Tristate;
+
 import 'package:chip_component/checkbox/fit_checkbox.dart';
 import 'package:chip_component/checkbox/fit_checkbox_style.dart';
 import 'package:flutter/material.dart';
@@ -72,13 +74,13 @@ void main() {
       expect(value, isFalse);
     });
 
-    testWidgets('uses error color on border when hasError', (tester) async {
+    testWidgets('uses error color with higher priority', (tester) async {
       const errorColor = Colors.red;
 
       await tester.pumpWidget(
         _buildApp(
           const FitCheckbox(
-            value: false,
+            value: true,
             hasError: true,
             errorColor: errorColor,
             activeColor: Colors.green,
@@ -87,22 +89,11 @@ void main() {
         ),
       );
 
-      // Container의 border 색상이 errorColor인지 확인
-      final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(FitCheckbox),
-          matching: find.byType(Container),
-        ),
-      );
-      final decoration = container.decoration! as BoxDecoration;
-      final border = decoration.border! as Border;
-      // Color.lerp 결과이므로 ARGB 값으로 비교
-      expect(border.top.color.r, closeTo(errorColor.r, 0.01));
-      expect(border.top.color.g, closeTo(errorColor.g, 0.01));
-      expect(border.top.color.b, closeTo(errorColor.b, 0.01));
+      final checkbox = _resolveCheckboxWidget(tester);
+      expect(checkbox.side?.color, errorColor);
     });
 
-    testWidgets('renders all style branches without error', (tester) async {
+    testWidgets('renders all style branches', (tester) async {
       for (final style in FitCheckboxStyle.values) {
         await tester.pumpWidget(
           _buildApp(
@@ -113,37 +104,25 @@ void main() {
             ),
           ),
         );
-        await tester.pumpAndSettle();
 
-        // Container가 렌더링되는지 확인
-        expect(
-          find.descendant(
-            of: find.byType(FitCheckbox),
-            matching: find.byType(Container),
-          ),
-          findsOneWidget,
-        );
-
-        final container = tester.widget<Container>(
-          find.descendant(
-            of: find.byType(FitCheckbox),
-            matching: find.byType(Container),
-          ),
-        );
-        final decoration = container.decoration! as BoxDecoration;
-
+        final checkbox = _resolveCheckboxWidget(tester);
         switch (style) {
           case FitCheckboxStyle.material:
-            expect(decoration.borderRadius, BorderRadius.circular(4));
+            expect(checkbox.shape, isA<RoundedRectangleBorder>());
+            final shape = checkbox.shape! as RoundedRectangleBorder;
+            expect(shape.borderRadius, BorderRadius.circular(4));
           case FitCheckboxStyle.rounded:
-            expect(decoration.shape, BoxShape.circle);
+            expect(checkbox.shape, isA<CircleBorder>());
           case FitCheckboxStyle.outlined:
-            expect(decoration.borderRadius, BorderRadius.circular(4));
+            expect(
+              checkbox.fillColor?.resolve(<WidgetState>{WidgetState.selected}),
+              Colors.transparent,
+            );
         }
       }
     });
 
-    testWidgets('reflects size to visual container', (tester) async {
+    testWidgets('reflects size to visual box', (tester) async {
       const size = 32.0;
 
       await tester.pumpWidget(
@@ -156,19 +135,23 @@ void main() {
         ),
       );
 
-      final container = tester.widget<Container>(
+      final sizedBox = tester.widget<SizedBox>(
         find.descendant(
           of: find.byType(FitCheckbox),
-          matching: find.byType(Container),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is SizedBox &&
+                widget.width == size &&
+                widget.height == size,
+          ),
         ),
       );
-      final constraints = container.constraints;
-      expect(constraints?.maxWidth, size);
-      expect(constraints?.maxHeight, size);
+      expect(sizedBox.width, size);
+      expect(sizedBox.height, size);
     });
 
     testWidgets('applies custom border width', (tester) async {
-      const borderWidth = 3.0;
+      const borderWidth = 2.2;
 
       await tester.pumpWidget(
         _buildApp(
@@ -180,15 +163,8 @@ void main() {
         ),
       );
 
-      final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(FitCheckbox),
-          matching: find.byType(Container),
-        ),
-      );
-      final decoration = container.decoration! as BoxDecoration;
-      final border = decoration.border! as Border;
-      expect(border.top.width, borderWidth);
+      final checkbox = _resolveCheckboxWidget(tester);
+      expect(checkbox.side?.width, borderWidth);
     });
 
     testWidgets('reflects label placement when labelOnLeft is true',
@@ -211,11 +187,11 @@ void main() {
         ),
       );
 
-      // labelOnLeft이면 첫 번째가 Flexible(Text), 마지막이 체크박스 비주얼
-      expect(row.children.first, isA<Flexible>());
+      expect(row.children.first, isA<GestureDetector>());
+      expect(row.children.last, isA<SizedBox>());
     });
 
-    testWidgets('exposes checked/enabled semantics', (tester) async {
+    testWidgets('exposes checked/enabled/label semantics', (tester) async {
       await tester.pumpWidget(
         _buildApp(
           const FitCheckbox(
@@ -226,35 +202,13 @@ void main() {
         ),
       );
 
-      // Semantics 트리에서 label 확인
-      final semantics = tester.getSemantics(find.byType(FitCheckbox));
-      expect(semantics.label, contains('약관 동의'));
-    });
-
-    testWidgets('minimum tap target is 44x44', (tester) async {
-      await tester.pumpWidget(
-        _buildApp(
-          const FitCheckbox(
-            value: false,
-            size: 16,
-            onChanged: _noop,
-          ),
-        ),
-      );
-
-      final constrainedBox = tester.widget<ConstrainedBox>(
-        find.descendant(
-          of: find.byType(FitCheckbox),
-          matching: find.byWidgetPredicate(
-            (w) =>
-                w is ConstrainedBox &&
-                w.constraints.minWidth == 44 &&
-                w.constraints.minHeight == 44,
-          ),
-        ),
-      );
-      expect(constrainedBox.constraints.minWidth, 44);
-      expect(constrainedBox.constraints.minHeight, 44);
+      final rootSemantics = tester.getSemantics(find.byType(FitCheckbox));
+      final checkboxSemantics = tester.getSemantics(find.byType(Checkbox));
+      final data = checkboxSemantics.getSemanticsData();
+      expect(rootSemantics.label, contains('약관 동의'));
+      expect(data.flagsCollection.isChecked, CheckedState.isTrue);
+      expect(data.flagsCollection.isEnabled, Tristate.isTrue);
+      expect(data.hasAction(SemanticsAction.tap), isTrue);
     });
 
     testWidgets('accepts animationDuration for backward compatibility',
@@ -283,6 +237,15 @@ Widget _buildApp(Widget child) {
   return MaterialApp(
     home: Scaffold(
       body: Center(child: child),
+    ),
+  );
+}
+
+Checkbox _resolveCheckboxWidget(WidgetTester tester) {
+  return tester.widget<Checkbox>(
+    find.descendant(
+      of: find.byType(FitCheckbox),
+      matching: find.byType(Checkbox),
     ),
   );
 }

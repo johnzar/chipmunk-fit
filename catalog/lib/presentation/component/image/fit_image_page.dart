@@ -42,7 +42,7 @@ class _FitImagePageState extends State<FitImagePage> {
   String _networkUrl = _kNetworkSample;
   late final TextEditingController _networkUrlController;
 
-  final String _assetPath = ChipAssets.images.icSneakers.keyName;
+  final String _assetPath = ChipAssets.icons.icCoinPig.keyName;
   final String _fileSampleAssetPath = ChipAssets.images.icSneakers.keyName;
   String? _filePath;
   String? _fileError;

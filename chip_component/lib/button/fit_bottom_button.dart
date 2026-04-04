@@ -34,7 +34,7 @@ class FitBottomButton extends StatelessWidget {
     this.textStyle,
     this.backgroundColor,
     this.disabledBackgroundColor,
-    this.borderRadius = FitButtonStyle.defaultBorderRadius,
+    this.borderRadius = 50.0,
   });
 
   @override
@@ -42,8 +42,7 @@ class FitBottomButton extends StatelessWidget {
     final effectiveBackgroundColor = backgroundColor ?? context.fitColors.main;
 
     final effectiveDisabledColor =
-        disabledBackgroundColor ??
-        effectiveBackgroundColor.withValues(alpha: 0.5);
+        disabledBackgroundColor ?? effectiveBackgroundColor.withValues(alpha: 0.5);
 
     final effectiveTextStyle =
         textStyle ?? context.button1().copyWith(color: context.fitColors.grey0);
@@ -52,9 +51,16 @@ class FitBottomButton extends StatelessWidget {
       child: isShowLoading
           ? SizedBox(
               height: 24,
-              child: FitDotLoading(dotSize: 8, color: context.fitColors.grey0),
+              child: FitDotLoading(
+                dotSize: 8,
+                color: context.fitColors.grey0,
+              ),
             )
-          : Text(text, textAlign: TextAlign.center, style: effectiveTextStyle),
+          : Text(
+              text,
+              textAlign: TextAlign.center,
+              style: effectiveTextStyle,
+            ),
     );
 
     return FitButton(

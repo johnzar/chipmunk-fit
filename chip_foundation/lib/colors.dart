@@ -453,8 +453,8 @@ Color _withOpacity(Color base, double opacity) {
 
 /// Light Theme Colors
 final FitColors lightFitColors = FitColors(
-  main: ChipColors.violet500,
-  sub: ChipColors.green500,
+  main: ChipColors.green500,
+  sub: ChipColors.periwinkle500,
   grey0: ChipColors.grey0,
   grey50: ChipColors.grey50,
   grey100: ChipColors.grey100,
@@ -552,8 +552,8 @@ final FitColors lightFitColors = FitColors(
 
 /// Dark Theme Colors
 final FitColors darkFitColors = FitColors(
-  main: ChipColors.violet500Dark,
-  sub: ChipColors.green500Dark,
+  main: ChipColors.green500Dark,
+  sub: ChipColors.periwinkle500Dark,
   grey0: ChipColors.grey0Dark,
   grey50: ChipColors.grey50Dark,
   grey100: ChipColors.grey100Dark,
@@ -643,7 +643,7 @@ final FitColors darkFitColors = FitColors(
   dividerSecondary: ChipColors.grey200Dark,
   inverseBackground: ChipColors.grey900Dark,
   inverseText: ChipColors.grey0Dark,
-  inverseDisabled: ChipColors.grey600Dark,
+  inverseDisabled: ChipColors.grey0Dark,
   dimBackground: _withOpacity(ChipColors.staticBlack, 0.6),
   dimOverlay: _withOpacity(ChipColors.staticBlack, 0.76),
   dimCard: _withOpacity(const Color(0xFF0D0D0D), 0.72),

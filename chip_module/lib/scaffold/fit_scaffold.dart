@@ -144,7 +144,7 @@ class FitScaffold extends StatelessWidget {
       bottom: bottom,
       top: top,
       child: Padding(
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
+        padding: padding ?? const EdgeInsets.symmetric(horizontal: 20),
         child: _buildBodyWithLoading(context),
       ),
     );

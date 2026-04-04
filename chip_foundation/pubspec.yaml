@@ -15,7 +15,6 @@ dependencies:
       url: https://github.com/chipmunk-studio/chipmunk-fit.git
       ref: main
       path: chip_assets
-  flutter_screenutil:
 
 dev_dependencies:
   flutter_test:

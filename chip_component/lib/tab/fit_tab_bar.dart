@@ -118,7 +118,6 @@ class _FitTabBarState<T> extends State<FitTabBar<T>> {
     for (var i = 0; i < widget.items.length; i++) {
       _tabKeys[i] = GlobalKey();
     }
-    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndicatorPosition());
   }
 
@@ -132,61 +131,33 @@ class _FitTabBarState<T> extends State<FitTabBar<T>> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
-  /// 스크롤 시 인디케이터 위치를 즉시 갱신하여 탭과 함께 움직이도록 합니다.
-  void _onScroll() {
-    _updateIndicatorPositionImmediate();
-  }
-
-  /// 애니메이션 없이 즉시 인디케이터 위치를 갱신합니다.
-  void _updateIndicatorPositionImmediate() {
-    final pos = _calculateIndicatorPosition();
-    if (pos == null) return;
-
-    setState(() {
-      _indicatorLeft = pos.left;
-      _indicatorWidth = pos.width;
-      _initialized = true;
-    });
-  }
-
-  /// 탭 선택 변경 시 애니메이션과 함께 인디케이터를 이동합니다.
   void _updateIndicatorPosition() {
-    final pos = _calculateIndicatorPosition();
-    if (pos == null) return;
-
-    setState(() {
-      _indicatorLeft = pos.left;
-      _indicatorWidth = pos.width;
-      _initialized = true;
-    });
-  }
-
-  /// 현재 선택된 탭 기준으로 인디케이터 위치를 계산합니다.
-  _IndicatorPosition? _calculateIndicatorPosition() {
     final selectedIndex = widget.items.indexOf(widget.selectedItem);
-    if (selectedIndex < 0) return null;
+    if (selectedIndex < 0) return;
 
     final tabContext = _tabKeys[selectedIndex]?.currentContext;
     final stackContext = _stackKey.currentContext;
-    if (tabContext == null || stackContext == null) return null;
+    if (tabContext == null || stackContext == null) return;
 
     final renderBox = tabContext.findRenderObject() as RenderBox?;
     final stackBox = stackContext.findRenderObject() as RenderBox?;
-    if (renderBox == null || stackBox == null) return null;
+    if (renderBox == null || stackBox == null) return;
 
     final textWidth = renderBox.size.width;
+
+    // 텍스트의 실제 중심점을 직접 계산 (좌측 상단 기준이 아닌 중앙 기준)
     final centerPoint = Offset(textWidth / 2, renderBox.size.height / 2);
     final globalCenter = renderBox.localToGlobal(centerPoint, ancestor: stackBox);
 
-    final width = textWidth + (widget.indicatorHorizontalPadding * 2);
-    final left = globalCenter.dx - width / 2;
-
-    return _IndicatorPosition(left: left, width: width);
+    setState(() {
+      _indicatorWidth = textWidth + (widget.indicatorHorizontalPadding * 2);
+      _indicatorLeft = globalCenter.dx - _indicatorWidth / 2;
+      _initialized = true;
+    });
   }
 
   @override
@@ -267,14 +238,6 @@ class _FitTabBarState<T> extends State<FitTabBar<T>> {
       ),
     );
   }
-}
-
-/// 인디케이터 위치 데이터
-class _IndicatorPosition {
-  const _IndicatorPosition({required this.left, required this.width});
-
-  final double left;
-  final double width;
 }
 
 /// 탭 아이템 스케일 애니메이션 위젯

@@ -1,4 +1,4 @@
-import 'package:chip_component/image/fit_cached_network_image.dart';
+import 'package:chip_component/image/fit_cached_network_Image.dart';
 import 'package:chip_component/image/fit_image.dart';
 import 'package:chip_component/image/fit_image_shape.dart';
 import 'package:chip_component/image/fit_local_image.dart';

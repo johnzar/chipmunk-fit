@@ -61,7 +61,8 @@ class FitAnimatedBottomButton extends StatefulWidget {
   final int maxLines;
 
   @override
-  State<FitAnimatedBottomButton> createState() => _FitAnimatedBottomButtonState();
+  State<FitAnimatedBottomButton> createState() =>
+      _FitAnimatedBottomButtonState();
 }
 
 class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
@@ -124,7 +125,7 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
       );
       return resolved.topLeft.x;
     }
-    return FitButtonStyle.defaultBorderRadius.r;
+    return 100.r;
   }
 
   double _resolveSafeBottomPadding(MediaQueryData query) {
@@ -158,12 +159,14 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
   Widget build(BuildContext context) {
     final colors = context.fitColors;
     final query = MediaQuery.of(context);
-    final bgColor = widget.backgroundColor ?? colors.backgroundElevated;
+    final bgColor = widget.backgroundColor ?? colors.backgroundAlternative;
     final safeBottomPadding = _resolveSafeBottomPadding(query);
     return TweenAnimationBuilder<double>(
       duration: _kAnimDuration,
       curve: Curves.easeOutCubic,
-      tween: Tween(end: _isKeyboardVisible ? 0.0 : 1.0),
+      tween: Tween(
+        end: _isKeyboardVisible ? 0.0 : 1.0,
+      ),
       builder: (context, anim, _) => Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -171,10 +174,9 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
           boxShadow: anim > 0.5
               ? [
                   BoxShadow(
-                    color: bgColor.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
-                  ),
+                      color: bgColor.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2))
                 ]
               : null,
         ),

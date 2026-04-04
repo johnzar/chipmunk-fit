@@ -19,7 +19,7 @@ class NavigationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FitSkeletonTheme(
+    return SkeletonTheme(
       shimmerGradient: LinearGradient(
         colors: [
           context.fitColors.grey700,

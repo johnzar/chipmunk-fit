@@ -7,19 +7,19 @@ import 'stylings.dart';
 
 part 'skeleton.dart';
 
-class FitSkeletonItem extends StatelessWidget {
+class SkeletonItem extends StatelessWidget {
   final Widget child;
 
-  const FitSkeletonItem({
+  const SkeletonItem({
     super.key,
     required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (FitShimmer.of(context) == null) {
-      return FitShimmerWidget(
-        child: _FitSkeletonWidget(
+    if (Shimmer.of(context) == null) {
+      return ShimmerWidget(
+        child: _SkeletonWidget(
           isLoading: true, skeleton: child,
           //  child: SizedBox()
         ),
@@ -30,14 +30,14 @@ class FitSkeletonItem extends StatelessWidget {
   }
 }
 
-class FitSkeletonAvatar extends StatelessWidget {
-  final FitSkeletonAvatarStyle style;
+class SkeletonAvatar extends StatelessWidget {
+  final SkeletonAvatarStyle style;
 
-  const FitSkeletonAvatar({super.key, this.style = const FitSkeletonAvatarStyle()});
+  const SkeletonAvatar({super.key, this.style = const SkeletonAvatarStyle()});
 
   @override
   Widget build(BuildContext context) {
-    return FitSkeletonItem(
+    return SkeletonItem(
       child: Padding(
         padding: style.padding,
         child: LayoutBuilder(
@@ -66,14 +66,14 @@ class FitSkeletonAvatar extends StatelessWidget {
   }
 }
 
-class FitSkeletonLine extends StatelessWidget {
-  final FitSkeletonLineStyle style;
+class SkeletonLine extends StatelessWidget {
+  final SkeletonLineStyle style;
 
-  const FitSkeletonLine({super.key, this.style = const FitSkeletonLineStyle()});
+  const SkeletonLine({super.key, this.style = const SkeletonLineStyle()});
 
   @override
   Widget build(BuildContext context) {
-    return FitSkeletonItem(
+    return SkeletonItem(
       child: Align(
         alignment: style.alignment,
         child: Padding(
@@ -104,23 +104,23 @@ class FitSkeletonLine extends StatelessWidget {
   }
 }
 
-class FitSkeletonParagraph extends StatelessWidget {
-  final FitSkeletonParagraphStyle style;
+class SkeletonParagraph extends StatelessWidget {
+  final SkeletonParagraphStyle style;
 
-  const FitSkeletonParagraph({
+  const SkeletonParagraph({
     super.key,
-    this.style = const FitSkeletonParagraphStyle(),
+    this.style = const SkeletonParagraphStyle(),
   });
 
   @override
   Widget build(BuildContext context) {
-    return FitSkeletonItem(
+    return SkeletonItem(
       child: Padding(
         padding: style.padding,
         child: Column(
           children: [
             for (var i = 1; i <= style.lines; i++) ...[
-              FitSkeletonLine(
+              SkeletonLine(
                 style: style.lineStyle,
               ),
               if (i != style.lines)
@@ -135,28 +135,28 @@ class FitSkeletonParagraph extends StatelessWidget {
   }
 }
 
-class FitSkeletonListTile extends StatelessWidget {
+class SkeletonListTile extends StatelessWidget {
   final bool hasLeading;
-  final FitSkeletonAvatarStyle? leadingStyle;
-  final FitSkeletonLineStyle? titleStyle;
+  final SkeletonAvatarStyle? leadingStyle;
+  final SkeletonLineStyle? titleStyle;
   final bool hasSubtitle;
-  final FitSkeletonLineStyle? subtitleStyle;
+  final SkeletonLineStyle? subtitleStyle;
   final EdgeInsetsGeometry? padding;
   final double? contentSpacing;
   final double? verticalSpacing;
   final Widget? trailing;
 
-  // final FitSkeletonListTileStyle style;
+  // final SkeletonListTileStyle style;
 
-  const FitSkeletonListTile({
+  const SkeletonListTile({
     super.key,
     this.hasLeading = true,
-    this.leadingStyle, //  = const FitSkeletonAvatarStyle(padding: EdgeInsets.all(0)),
-    this.titleStyle = const FitSkeletonLineStyle(
+    this.leadingStyle, //  = const SkeletonAvatarStyle(padding: EdgeInsets.all(0)),
+    this.titleStyle = const SkeletonLineStyle(
       padding: EdgeInsets.all(0),
       height: 22,
     ),
-    this.subtitleStyle = const FitSkeletonLineStyle(
+    this.subtitleStyle = const SkeletonLineStyle(
       height: 16,
       padding: EdgeInsetsDirectional.only(end: 32),
     ),
@@ -171,7 +171,7 @@ class FitSkeletonListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FitSkeletonItem(
+    return SkeletonItem(
       child: Padding(
         padding: padding ?? EdgeInsets.zero,
         child: Row(
@@ -179,8 +179,8 @@ class FitSkeletonListTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (hasLeading)
-              FitSkeletonAvatar(
-                style: leadingStyle ?? const FitSkeletonAvatarStyle(),
+              SkeletonAvatar(
+                style: leadingStyle ?? const SkeletonAvatarStyle(),
               ),
             SizedBox(
               width: contentSpacing,
@@ -190,15 +190,15 @@ class FitSkeletonListTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  FitSkeletonLine(
-                    style: titleStyle ?? const FitSkeletonLineStyle(),
+                  SkeletonLine(
+                    style: titleStyle ?? const SkeletonLineStyle(),
                   ),
                   if (hasSubtitle) ...[
                     SizedBox(
                       height: verticalSpacing,
                     ),
-                    FitSkeletonLine(
-                      style: subtitleStyle ?? const FitSkeletonLineStyle(),
+                    SkeletonLine(
+                      style: subtitleStyle ?? const SkeletonLineStyle(),
                     ),
                   ]
                 ],
@@ -212,7 +212,7 @@ class FitSkeletonListTile extends StatelessWidget {
   }
 }
 
-class FitSkeletonListView extends StatelessWidget {
+class SkeletonListView extends StatelessWidget {
   final Widget? item;
   final Widget Function(BuildContext, int)? itemBuilder;
   final int? itemCount;
@@ -220,7 +220,7 @@ class FitSkeletonListView extends StatelessWidget {
   final EdgeInsets? padding;
   final double? spacing;
 
-  const FitSkeletonListView({
+  const SkeletonListView({
     super.key,
     this.item,
     this.itemBuilder,
@@ -232,7 +232,7 @@ class FitSkeletonListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FitSkeletonItem(
+    return SkeletonItem(
       child: ListView.builder(
         padding: padding,
         physics: scrollable ? null : const NeverScrollableScrollPhysics(),
@@ -240,7 +240,7 @@ class FitSkeletonListView extends StatelessWidget {
         itemBuilder: itemBuilder ??
             (context, index) =>
                 item ??
-                const FitSkeletonListTile(
+                const SkeletonListTile(
                   hasSubtitle: true,
                 ),
       ),

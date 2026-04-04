@@ -40,7 +40,7 @@ const DARK_SHIMMER_GRADIENT = LinearGradient(
   tileMode: TileMode.clamp,
 );
 
-class FitSkeletonAvatarStyle {
+class SkeletonAvatarStyle {
   final double? width;
   final double? height;
   final EdgeInsetsGeometry padding;
@@ -53,7 +53,7 @@ class FitSkeletonAvatarStyle {
   final BoxShape shape;
   final BorderRadiusGeometry? borderRadius;
 
-  const FitSkeletonAvatarStyle({
+  const SkeletonAvatarStyle({
     this.width = 48,
     this.height = 48,
     this.padding = const EdgeInsets.all(0),
@@ -75,7 +75,7 @@ class FitSkeletonAvatarStyle {
             (maxHeight > 0 && (minHeight == null || minHeight < maxHeight)));
 }
 
-class FitSkeletonLineStyle {
+class SkeletonLineStyle {
   final double? width;
   final double? height;
   final EdgeInsetsGeometry padding;
@@ -85,7 +85,7 @@ class FitSkeletonLineStyle {
   final AlignmentGeometry alignment;
   final BorderRadiusGeometry? borderRadius;
 
-  const FitSkeletonLineStyle(
+  const SkeletonLineStyle(
       {this.width = double.infinity,
       this.height = 18,
       this.padding = const EdgeInsets.all(0),
@@ -100,38 +100,38 @@ class FitSkeletonLineStyle {
             (maxLength > 0 && (minLength == null || minLength < maxLength)));
 }
 
-class FitSkeletonParagraphStyle {
+class SkeletonParagraphStyle {
   final int lines;
   final EdgeInsetsGeometry padding;
   final double spacing;
-  final FitSkeletonLineStyle lineStyle;
+  final SkeletonLineStyle lineStyle;
 
-  const FitSkeletonParagraphStyle({
+  const SkeletonParagraphStyle({
     this.lines = 3,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
     this.spacing = 12,
-    this.lineStyle = const FitSkeletonLineStyle(),
+    this.lineStyle = const SkeletonLineStyle(),
   });
 }
 
-class FitSkeletonListTileStyle {
+class SkeletonListTileStyle {
   final bool hasLeading;
-  final FitSkeletonAvatarStyle? leadingStyle;
-  final FitSkeletonLineStyle? titleStyle;
+  final SkeletonAvatarStyle? leadingStyle;
+  final SkeletonLineStyle? titleStyle;
   final bool hasSubtitle;
-  final FitSkeletonLineStyle? subtitleStyle;
+  final SkeletonLineStyle? subtitleStyle;
   final EdgeInsetsGeometry? padding;
   final double? contentSpacing;
   final double? verticalSpacing;
 
-  const FitSkeletonListTileStyle({
+  const SkeletonListTileStyle({
     this.hasLeading = true,
-    this.leadingStyle, //  = const FitSkeletonAvatarStyle(padding: EdgeInsets.all(0)),
-    this.titleStyle = const FitSkeletonLineStyle(
+    this.leadingStyle, //  = const SkeletonAvatarStyle(padding: EdgeInsets.all(0)),
+    this.titleStyle = const SkeletonLineStyle(
       padding: EdgeInsets.all(0),
       height: 22,
     ),
-    this.subtitleStyle = const FitSkeletonLineStyle(
+    this.subtitleStyle = const SkeletonLineStyle(
       height: 16,
       padding: EdgeInsetsDirectional.only(end: 32),
     ),

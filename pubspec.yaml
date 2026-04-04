@@ -40,33 +40,17 @@ dev_dependencies:
 
 melos:
   scripts:
-    # ==================== 의존성 관리 ====================
-
     get:
       run: melos exec --concurrency=1 -- "flutter pub get"
       description: Run "flutter pub get" in all packages.
 
-    clean:
-      run: melos exec --concurrency=10 -- "flutter clean"
-      description: Run "flutter clean" in all packages.
-
-    # ==================== 코드 생성 ====================
-
     build:
-      run: |
-        dart run build_runner build --delete-conflicting-outputs &
-        root_pid=$!
-        melos exec --depends-on="build_runner" --concurrency=10 -- "dart run build_runner build --delete-conflicting-outputs"
-        wait $root_pid
-      description: Run build_runner in the main app and all packages in parallel.
+      run: melos exec --depends-on="build_runner" --concurrency=10 -- "dart run build_runner build --delete-conflicting-outputs"
+      description: Run build_runner for all packages that have it as a dependency.
 
     build:all:
       run: melos exec --concurrency=10 -- "dart run build_runner build --delete-conflicting-outputs" || true
       description: Run build_runner for all packages including those with build_runner in dev_dependencies.
-
-    build:main:
-      run: dart run build_runner build --delete-conflicting-outputs
-      description: Run build_runner in the main app for .g.dart and .freezed.dart files.
 
     build:component:
       run: melos exec --scope="chip_component" -- "dart run build_runner build --delete-conflicting-outputs"
@@ -81,14 +65,16 @@ melos:
       description: Run build_runner in the module module.
 
     build:assets:
-      run: melos exec --scope="chip_assets" -- "fluttergen -c pubspec.yaml"
+      run: melos exec --scope="chip_assets" -- "dart run build_runner build --delete-conflicting-outputs"
       description: Run build_runner in the chip_assets module.
 
     build:catalog:
       run: melos exec --scope="catalog" -- "dart run build_runner build --delete-conflicting-outputs"
       description: Run build_runner in the catalog module.
 
-    # ==================== 테스트 & 린트 ====================
+    clean:
+      run: melos exec -- "flutter clean"
+      description: Run "flutter clean" in all packages.
 
     test:
       run: melos exec -- "flutter test"
@@ -103,12 +89,8 @@ melos:
       description: Run lint analysis and fail on any issues.
 
     lint:fix:
-      run: |
-        dart fix --apply &
-        root_pid=$!
-        melos exec --concurrency=10 -- "dart fix --apply"
-        wait $root_pid
-      description: Automatically fix lint issues in the main app and all packages.
+      run: melos exec -- "dart fix --apply"
+      description: Automatically fix lint issues where possible.
 
     lint:component:
       run: melos exec --scope="chip_component" -- "flutter analyze"
@@ -126,20 +108,6 @@ melos:
       run: melos exec --scope="chip_assets" -- "fluttergen -c pubspec.yaml"
       description: Run flutter_gen for chip_assets module.
 
-    # ==================== 프로젝트 초기화 ====================
-
-    reset:
-      run: ./clean.sh
-      description: Clean and rebuild entire project without upgrades.
-
-    reset:upgrade:
-      run: ./clean.sh --upgrade
-      description: Clean, rebuild and upgrade Flutter SDK.
-
-    reset:upgrade-packages:
-      run: ./clean.sh --upgrade-packages
-      description: Clean, rebuild and upgrade packages.
-
-    reset:upgrade-all:
-      run: ./clean.sh --upgrade-all
-      description: Clean, rebuild and upgrade everything.
+    build:main:
+      run: dart run build_runner build --delete-conflicting-outputs
+      description: Run build_runner in the main app for .g.dart and .freezed.dart files.

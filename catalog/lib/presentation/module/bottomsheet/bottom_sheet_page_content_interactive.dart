@@ -43,19 +43,16 @@ class _KeyboardSheetContentState extends State<_KeyboardSheetContent> {
                 controller: _controller,
                 decoration: InputDecoration(
                   hintText: '입력하세요',
-                  hintStyle: context.body4().copyWith(
-                    color: colors.textTertiary,
-                  ),
+                  hintStyle:
+                      context.body4().copyWith(color: colors.textTertiary),
                   filled: true,
                   fillColor: colors.fillAlternative,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   isDense: true,
                 ),
                 style: context.body3().copyWith(color: colors.textPrimary),
@@ -66,7 +63,7 @@ class _KeyboardSheetContentState extends State<_KeyboardSheetContent> {
         const SizedBox(height: 16),
         FitAnimatedBottomButton(
           useSafeArea: false,
-          backgroundColor: colors.backgroundElevated,
+          backgroundColor: colors.backgroundBase,
           onPressed: widget.onClose,
           child: Text('닫기', style: context.button1()),
         ),
@@ -76,7 +73,10 @@ class _KeyboardSheetContentState extends State<_KeyboardSheetContent> {
 }
 
 class _NestedSheetContent extends StatelessWidget {
-  const _NestedSheetContent({required this.config, required this.onClose});
+  const _NestedSheetContent({
+    required this.config,
+    required this.onClose,
+  });
 
   final FitBottomSheetConfig config;
   final VoidCallback onClose;
@@ -116,7 +116,7 @@ class _NestedSheetContent extends StatelessWidget {
         const SizedBox(height: 16),
         FitAnimatedBottomButton(
           useSafeArea: false,
-          backgroundColor: colors.backgroundElevated,
+          backgroundColor: colors.backgroundBase,
           onPressed: onClose,
           child: Text('현재 BottomSheet 닫기', style: context.button1()),
         ),

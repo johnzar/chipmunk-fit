@@ -36,7 +36,9 @@ class FoundationPage extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.fitColors.backgroundElevated,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.fitColors.dividerPrimary),
+            border: Border.all(
+              color: context.fitColors.dividerPrimary,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,15 +46,15 @@ class FoundationPage extends StatelessWidget {
               Text(
                 'Foundation Guide',
                 style: context.subtitle4().copyWith(
-                  color: context.fitColors.textPrimary,
-                ),
+                      color: context.fitColors.textPrimary,
+                    ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Colors와 Typography는 Light/Dark 환경에서 동일한 토큰 규칙으로 동작합니다.',
                 style: context.caption1().copyWith(
-                  color: context.fitColors.textSecondary,
-                ),
+                      color: context.fitColors.textSecondary,
+                    ),
               ),
             ],
           ),
@@ -75,7 +77,7 @@ class FoundationPage extends StatelessWidget {
         icon: Icons.text_fields_outlined,
         iconColor: const Color(0xFFF76B1C),
         title: 'Typography',
-        subtitle: '텍스트 토큰과 접근성 대응 SP scale 규칙을 검증합니다.',
+        subtitle: '텍스트 토큰과 FitTextSp scale 규칙을 검증합니다.',
         route: '/textstyle',
       ),
     ];

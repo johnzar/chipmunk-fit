@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'fit_image_shape.dart';
+import 'http/fit_http_client_with_timeout.dart';
 import 'squircle/fit_squircle_border_painter.dart';
 import 'squircle/fit_squircle_clipper.dart';
 
@@ -21,6 +22,9 @@ class FitImage extends StatelessWidget {
       _cacheKey,
       stalePeriod: const Duration(days: 30),
       repo: JsonCacheInfoRepository(databaseName: _cacheKey),
+      fileService: HttpFileService(
+        httpClient: FitHttpClientWithTimeout(),
+      ),
     ),
   );
 

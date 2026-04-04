@@ -6,7 +6,6 @@ import 'presentation/component/button/animated_bottom_button_page.dart';
 import 'presentation/component/button/button_page.dart';
 import 'presentation/component/checkbox/check_box_page.dart';
 import 'presentation/component/chip/chip_page.dart';
-import 'presentation/component/indicator/indicator_page.dart';
 import 'presentation/component/image/fit_image_page.dart';
 import 'presentation/component/lottie/lottie_page.dart';
 import 'presentation/component/radio/radio_button_page.dart';
@@ -81,12 +80,6 @@ final GoRouter catalogRouter = GoRouter(
           path: 'chip',
           builder: (BuildContext context, GoRouterState state) {
             return const ChipPage();
-          },
-        ),
-        GoRoute(
-          path: 'indicator',
-          builder: (BuildContext context, GoRouterState state) {
-            return const IndicatorPage();
           },
         ),
         GoRoute(

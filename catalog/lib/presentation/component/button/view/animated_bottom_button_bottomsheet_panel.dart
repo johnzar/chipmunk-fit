@@ -9,10 +9,12 @@ class AnimatedBottomButtonBottomSheetPanel extends StatelessWidget {
     super.key,
     required this.onShowBasic,
     required this.onShowOverflow,
+    required this.onShowMultiple,
   });
 
   final VoidCallback onShowBasic;
   final VoidCallback onShowOverflow;
+  final VoidCallback onShowMultiple;
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +22,19 @@ class AnimatedBottomButtonBottomSheetPanel extends StatelessWidget {
       title: 'BottomSheet Test',
       child: Column(
         children: [
-          _PresetButton(label: 'Basic + TextField', onPressed: onShowBasic),
+          _PresetButton(
+            label: 'Basic + TextField',
+            onPressed: onShowBasic,
+          ),
           const SizedBox(height: 8),
           _PresetButton(
             label: 'Overflow Scroll + TextField',
             onPressed: onShowOverflow,
+          ),
+          const SizedBox(height: 8),
+          _PresetButton(
+            label: 'Multiple TextFields',
+            onPressed: onShowMultiple,
           ),
         ],
       ),
@@ -33,7 +43,10 @@ class AnimatedBottomButtonBottomSheetPanel extends StatelessWidget {
 }
 
 class _PresetButton extends StatelessWidget {
-  const _PresetButton({required this.label, required this.onPressed});
+  const _PresetButton({
+    required this.label,
+    required this.onPressed,
+  });
 
   final String label;
   final VoidCallback onPressed;
@@ -44,13 +57,19 @@ class _PresetButton extends StatelessWidget {
       isExpanded: true,
       type: FitButtonType.secondary,
       onPressed: onPressed,
-      child: Text(label, style: context.button1()),
+      child: Text(
+        label,
+        style: context.button1(),
+      ),
     );
   }
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+  const _SectionCard({
+    required this.title,
+    required this.child,
+  });
 
   final String title;
   final Widget child;

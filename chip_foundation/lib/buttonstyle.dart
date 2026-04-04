@@ -4,14 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'colors.dart';
 
 /// 버튼 타입 정의
-enum FitButtonType { primary, secondary, tertiary, ghost, destructive }
+enum FitButtonType {
+  primary,
+  secondary,
+  tertiary,
+  ghost,
+  destructive,
+}
 
 /// FitButton 스타일 유틸리티
 class FitButtonStyle {
   FitButtonStyle._();
 
   static const _disabledState = <WidgetState>{WidgetState.disabled};
-  static const double defaultBorderRadius = 14.0;
 
   static _ResolvedButtonColors _resolve(
     BuildContext context,
@@ -28,14 +33,11 @@ class FitButtonStyle {
             filledStyle?.backgroundColor?.resolve({}) ?? colors.main,
         disabledBackgroundColor:
             filledStyle?.backgroundColor?.resolve(_disabledState) ??
-            colors.green50,
+                colors.green50,
         foregroundColor: foreground,
         disabledForegroundColor:
             filledStyle?.foregroundColor?.resolve(_disabledState) ??
-            colors.inverseDisabled,
-        loadingBackgroundColor:
-            filledStyle?.backgroundColor?.resolve({}) ?? colors.main,
-        loadingForegroundColor: foreground,
+                colors.inverseDisabled,
         loadingColor: foreground,
       );
     }
@@ -46,8 +48,6 @@ class FitButtonStyle {
         disabledBackgroundColor: colors.grey300,
         foregroundColor: colors.inverseText,
         disabledForegroundColor: colors.textSecondary,
-        loadingBackgroundColor: colors.grey900,
-        loadingForegroundColor: colors.inverseText,
         loadingColor: colors.inverseText,
       );
     }
@@ -57,8 +57,6 @@ class FitButtonStyle {
         disabledBackgroundColor: colors.fillAlternative,
         foregroundColor: colors.textDisabled,
         disabledForegroundColor: colors.textTertiary,
-        loadingBackgroundColor: colors.fillStrong,
-        loadingForegroundColor: colors.textDisabled,
         loadingColor: colors.textDisabled,
       );
     }
@@ -68,8 +66,6 @@ class FitButtonStyle {
         disabledBackgroundColor: Colors.transparent,
         foregroundColor: colors.grey900,
         disabledForegroundColor: colors.grey300,
-        loadingBackgroundColor: Colors.transparent,
-        loadingForegroundColor: colors.grey900,
         borderSide: BorderSide(color: colors.grey400, width: 1.0),
         loadingColor: colors.grey900,
       );
@@ -80,8 +76,6 @@ class FitButtonStyle {
         disabledBackgroundColor: colors.red50,
         foregroundColor: colors.staticWhite,
         disabledForegroundColor: colors.inverseDisabled,
-        loadingBackgroundColor: colors.red500,
-        loadingForegroundColor: colors.staticWhite,
         loadingColor: colors.staticWhite,
       );
     }
@@ -136,18 +130,15 @@ class FitButtonStyle {
       overlayColor: WidgetStateProperty.all(overlayColor ?? Colors.transparent),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            borderRadius ?? defaultBorderRadius.r,
-          ),
+          borderRadius: BorderRadius.circular(borderRadius ?? 100.r),
           side: side ?? BorderSide.none,
         ),
       ),
       padding: padding != null ? WidgetStateProperty.all(padding) : null,
       textStyle: textStyle != null ? WidgetStateProperty.all(textStyle) : null,
       elevation: elevation != null ? WidgetStateProperty.all(elevation) : null,
-      minimumSize: minimumSize != null
-          ? WidgetStateProperty.all(minimumSize)
-          : null,
+      minimumSize:
+          minimumSize != null ? WidgetStateProperty.all(minimumSize) : null,
       shadowColor: WidgetStateProperty.all(Colors.transparent),
       surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
     );
@@ -158,25 +149,17 @@ class FitButtonStyle {
     BuildContext context,
     FitButtonType type, {
     bool isRipple = false,
-    bool isLoading = false,
   }) {
     final colors = context.fitColors;
-    final overlayColor = isRipple
-        ? colors.grey600.withValues(alpha: 0.2)
-        : Colors.transparent;
+    final overlayColor =
+        isRipple ? colors.grey600.withValues(alpha: 0.2) : Colors.transparent;
     final resolved = _resolve(context, type);
-    final disabledBackgroundColor = isLoading
-        ? resolved.loadingBackgroundColor
-        : resolved.disabledBackgroundColor;
-    final disabledForegroundColor = isLoading
-        ? resolved.loadingForegroundColor
-        : resolved.disabledForegroundColor;
 
     return styleFrom(
       backgroundColor: resolved.backgroundColor,
       foregroundColor: resolved.foregroundColor,
-      disabledBackgroundColor: disabledBackgroundColor,
-      disabledForegroundColor: disabledForegroundColor,
+      disabledBackgroundColor: resolved.disabledBackgroundColor,
+      disabledForegroundColor: resolved.disabledForegroundColor,
       overlayColor: overlayColor,
       side: resolved.borderSide,
     );
@@ -188,8 +171,6 @@ class _ResolvedButtonColors {
   final Color disabledBackgroundColor;
   final Color foregroundColor;
   final Color disabledForegroundColor;
-  final Color loadingBackgroundColor;
-  final Color loadingForegroundColor;
   final BorderSide? borderSide;
   final Color loadingColor;
 
@@ -198,8 +179,6 @@ class _ResolvedButtonColors {
     required this.disabledBackgroundColor,
     required this.foregroundColor,
     required this.disabledForegroundColor,
-    required this.loadingBackgroundColor,
-    required this.loadingForegroundColor,
     this.borderSide,
     required this.loadingColor,
   });

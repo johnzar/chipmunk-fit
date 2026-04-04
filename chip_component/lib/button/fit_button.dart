@@ -5,7 +5,7 @@ import 'package:chip_foundation/buttonstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:sprung/sprung.dart';
 
-/// DS 기본 버튼 컴포넌트.
+/// ChipFit 기본 버튼 컴포넌트.
 ///
 /// 정책 요약:
 /// - 로딩 상태(`isLoading`)에서는 탭 입력을 무시합니다.
@@ -111,10 +111,9 @@ class _FitButtonState extends State<FitButton> {
 
   @override
   Widget build(BuildContext context) {
-    final padding =
-        widget.padding ??
+    final padding = widget.padding ??
         EdgeInsets.symmetric(
-          vertical: 18,
+          vertical: 20,
           horizontal: widget.isExpanded ? 20 : 14,
         );
 
@@ -152,20 +151,18 @@ class _FitButtonState extends State<FitButton> {
 
   /// 타입 스타일 + 상태 스타일 + 커스텀 스타일을 병합한 ButtonStyle 반환
   ButtonStyle _buildStyle(BuildContext context, EdgeInsets padding) {
-    final baseStyle =
-        FitButtonStyle.of(
-          context,
-          widget.type,
-          isRipple: widget.enableRipple,
-          isLoading: widget.isLoading,
-        ).copyWith(
-          padding: WidgetStateProperty.all(padding),
-          minimumSize: WidgetStateProperty.all(Size.zero),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          elevation: WidgetStateProperty.all(0),
-          shadowColor: WidgetStateProperty.all(Colors.transparent),
-          surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
-        );
+    final baseStyle = FitButtonStyle.of(
+      context,
+      widget.type,
+      isRipple: widget.enableRipple,
+    ).copyWith(
+      padding: WidgetStateProperty.all(padding),
+      minimumSize: WidgetStateProperty.all(Size.zero),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      elevation: WidgetStateProperty.all(0),
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
+    );
 
     // 커스텀 스타일이 있으면 병합 (커스텀 우선)
     return widget.style?.merge(baseStyle) ?? baseStyle;
@@ -189,8 +186,7 @@ class _FitButtonState extends State<FitButton> {
         ),
         FitDotLoading(
           dotSize: 8,
-          color:
-              widget.loadingColor ??
+          color: widget.loadingColor ??
               FitButtonStyle.loadingColorOf(context, widget.type),
         ),
       ],
@@ -204,7 +200,6 @@ class _FitButtonState extends State<FitButton> {
       builder: (context, constraints) {
         final result = _resolveAutoSize(context, child, constraints);
         return _copyTextWithPolicy(
-          context: context,
           source: child,
           scale: result.scale,
           useEllipsis: result.useEllipsis,
@@ -222,8 +217,7 @@ class _FitButtonState extends State<FitButton> {
       return const _AutoSizeTextResult(scale: 1.0, useEllipsis: false);
     }
 
-    final textDirection =
-        source.textDirection ??
+    final textDirection = source.textDirection ??
         Directionality.maybeOf(context) ??
         TextDirection.ltr;
     final maxWidth = constraints.maxWidth;
@@ -246,9 +240,7 @@ class _FitButtonState extends State<FitButton> {
 
     if (!fits(_kMinFontScale, useEllipsis: false)) {
       return const _AutoSizeTextResult(
-        scale: _kMinFontScale,
-        useEllipsis: true,
-      );
+          scale: _kMinFontScale, useEllipsis: true);
     }
 
     double low = _kMinFontScale;
@@ -285,7 +277,7 @@ class _FitButtonState extends State<FitButton> {
       textWidthBasis: source.textWidthBasis ?? TextWidthBasis.parent,
       textHeightBehavior: source.textHeightBehavior,
       maxLines: widget.maxLines,
-      textScaler: _resolveTextScaler(context, source, autoScale: scale),
+      textScaler: TextScaler.linear(scale),
       ellipsis: useEllipsis ? '…' : null,
     );
 
@@ -309,7 +301,6 @@ class _FitButtonState extends State<FitButton> {
   }
 
   Text _copyTextWithPolicy({
-    required BuildContext context,
     required Text source,
     required double scale,
     required bool useEllipsis,
@@ -328,7 +319,7 @@ class _FitButtonState extends State<FitButton> {
         locale: source.locale,
         softWrap: softWrap,
         overflow: overflow,
-        textScaler: _resolveTextScaler(context, source, autoScale: scale),
+        textScaler: TextScaler.linear(scale),
         semanticsLabel: source.semanticsLabel,
         textWidthBasis: source.textWidthBasis,
         textHeightBehavior: source.textHeightBehavior,
@@ -347,7 +338,7 @@ class _FitButtonState extends State<FitButton> {
       locale: source.locale,
       softWrap: softWrap,
       overflow: overflow,
-      textScaler: _resolveTextScaler(context, source, autoScale: scale),
+      textScaler: TextScaler.linear(scale),
       semanticsLabel: source.semanticsLabel,
       textWidthBasis: source.textWidthBasis,
       textHeightBehavior: source.textHeightBehavior,
@@ -355,65 +346,14 @@ class _FitButtonState extends State<FitButton> {
       maxLines: widget.maxLines,
     );
   }
-
-  TextScaler _resolveTextScaler(
-    BuildContext context,
-    Text source, {
-    required double autoScale,
-  }) {
-    final baseScaler = source.textScaler ?? MediaQuery.textScalerOf(context);
-    if ((autoScale - 1.0).abs() < 1e-6) return baseScaler;
-    return _ScaledTextScaler(baseScaler: baseScaler, autoScale: autoScale);
-  }
 }
 
 class _AutoSizeTextResult {
   final double scale;
   final bool useEllipsis;
 
-  const _AutoSizeTextResult({required this.scale, required this.useEllipsis});
-}
-
-class _ScaledTextScaler implements TextScaler {
-  const _ScaledTextScaler({required this.baseScaler, required this.autoScale});
-
-  final TextScaler baseScaler;
-  final double autoScale;
-
-  @override
-  double scale(double fontSize) => baseScaler.scale(fontSize) * autoScale;
-
-  @override
-  double get textScaleFactor => scale(16) / 16;
-
-  @override
-  TextScaler clamp({
-    double minScaleFactor = 0,
-    double maxScaleFactor = double.infinity,
-  }) {
-    if (autoScale <= 0) {
-      return TextScaler.linear(
-        0,
-      ).clamp(minScaleFactor: minScaleFactor, maxScaleFactor: maxScaleFactor);
-    }
-
-    return _ScaledTextScaler(
-      baseScaler: baseScaler.clamp(
-        minScaleFactor: minScaleFactor / autoScale,
-        maxScaleFactor: maxScaleFactor / autoScale,
-      ),
-      autoScale: autoScale,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is _ScaledTextScaler &&
-        other.baseScaler == baseScaler &&
-        other.autoScale == autoScale;
-  }
-
-  @override
-  int get hashCode => Object.hash(baseScaler, autoScale);
+  const _AutoSizeTextResult({
+    required this.scale,
+    required this.useEllipsis,
+  });
 }

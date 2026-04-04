@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'stylings.dart';
 import 'theme.dart';
 
-class FitShimmerWidget extends StatefulWidget {
-  // static FitShimmerState? of(BuildContext context) {
-  //   return context.findAncestorStateOfType<FitShimmerState>();
+class ShimmerWidget extends StatefulWidget {
+  // static ShimmerState? of(BuildContext context) {
+  //   return context.findAncestorStateOfType<ShimmerState>();
   // }
 
-  const FitShimmerWidget({
+  const ShimmerWidget({
     super.key,
     this.shimmerGradient,
     this.darkShimmerGradient,
@@ -28,10 +28,10 @@ class FitShimmerWidget extends StatefulWidget {
   final Widget? child;
 
   @override
-  FitShimmerState createState() => FitShimmerState();
+  ShimmerState createState() => ShimmerState();
 }
 
-class FitShimmerState extends State<FitShimmerWidget>
+class ShimmerState extends State<ShimmerWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _shimmerController;
   // late LinearGradient _linearGradient;
@@ -49,7 +49,7 @@ class FitShimmerState extends State<FitShimmerWidget>
 
   // _setGradient() {
   //   _linearGradient = widget.linearGradient ??
-  //       FitSkeletonTheme.of(context)?.shimmerGradient ??
+  //       SkeletonTheme.of(context)?.shimmerGradient ??
   //       shimmerGradient;
   // }
 
@@ -65,7 +65,7 @@ class FitShimmerState extends State<FitShimmerWidget>
 
   @visibleForTesting
   LinearGradient get gradient => ((widget.themeMode ??
-              FitSkeletonTheme.of(context)?.themeMode ??
+              SkeletonTheme.of(context)?.themeMode ??
               _appThemeMode) ==
           ThemeMode.dark)
       ? _darkGradient
@@ -73,12 +73,12 @@ class FitShimmerState extends State<FitShimmerWidget>
 
   LinearGradient get _lightGradient =>
       widget.shimmerGradient ??
-      FitSkeletonTheme.of(context)?.shimmerGradient ??
+      SkeletonTheme.of(context)?.shimmerGradient ??
       SHIMMER_GRADIENT;
 
   LinearGradient get _darkGradient =>
       widget.darkShimmerGradient ??
-      FitSkeletonTheme.of(context)?.darkShimmerGradient ??
+      SkeletonTheme.of(context)?.darkShimmerGradient ??
       DARK_SHIMMER_GRADIENT;
 
   LinearGradient get currentGradient => LinearGradient(
@@ -87,7 +87,7 @@ class FitShimmerState extends State<FitShimmerWidget>
         begin: gradient.begin,
         end: gradient.end,
         transform:
-            _FitSlidingGradientTransform(slidePercent: _shimmerController.value),
+            _SlidingGradientTransform(slidePercent: _shimmerController.value),
       );
 
   bool get isSized => context.findRenderObject() != null
@@ -109,7 +109,7 @@ class FitShimmerState extends State<FitShimmerWidget>
   @override
   Widget build(BuildContext context) {
     return widget.child != null
-        ? FitShimmer(
+        ? Shimmer(
             shimmer: this,
             child: widget.child!,
           )
@@ -117,8 +117,8 @@ class FitShimmerState extends State<FitShimmerWidget>
   }
 }
 
-class _FitSlidingGradientTransform extends GradientTransform {
-  const _FitSlidingGradientTransform({
+class _SlidingGradientTransform extends GradientTransform {
+  const _SlidingGradientTransform({
     required this.slidePercent,
   });
 
@@ -130,17 +130,17 @@ class _FitSlidingGradientTransform extends GradientTransform {
   }
 }
 
-class FitShimmer extends InheritedWidget {
-  final FitShimmerState shimmer;
-  const FitShimmer({
+class Shimmer extends InheritedWidget {
+  final ShimmerState shimmer;
+  const Shimmer({
     super.key,
     required super.child,
     required this.shimmer,
   });
 
-  static FitShimmerState? of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<FitShimmer>()?.shimmer;
+  static ShimmerState? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<Shimmer>()?.shimmer;
 
   @override
-  bool updateShouldNotify(FitShimmer oldWidget) => shimmer != oldWidget.shimmer;
+  bool updateShouldNotify(Shimmer oldWidget) => shimmer != oldWidget.shimmer;
 }

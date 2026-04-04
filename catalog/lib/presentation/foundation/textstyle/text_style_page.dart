@@ -20,6 +20,7 @@ class TextStylePage extends StatefulWidget {
 
 class _TextStylePageState extends State<TextStylePage> {
   String _previewText = "안녕하세요 Hello 123";
+  FitTextSp _selectedType = FitTextSp.MIN;
   String _selectedCategory = "Headline";
 
   static const _categories = [
@@ -28,6 +29,7 @@ class _TextStylePageState extends State<TextStylePage> {
     "Body",
     "Caption",
     "Button",
+    "Custom",
   ];
 
   @override
@@ -38,14 +40,18 @@ class _TextStylePageState extends State<TextStylePage> {
       padding: EdgeInsets.zero,
       appBar: FitLeadingAppBar(
         title: "Typography",
-        actions: [const CatalogThemeSwitcher(), const SizedBox(width: 16)],
+        actions: [
+          const CatalogThemeSwitcher(),
+          const SizedBox(width: 16),
+        ],
       ),
       body: Column(
         children: [
           TextStyleTopPanel(
             previewText: _previewText,
-            onPreviewTextChanged: (value) =>
-                setState(() => _previewText = value),
+            onPreviewTextChanged: (value) => setState(() => _previewText = value),
+            selectedType: _selectedType,
+            onTypeSelected: (type) => setState(() => _selectedType = type),
             previewItems: styles.take(3).toList(),
           ),
           Expanded(
@@ -82,42 +88,46 @@ class _TextStylePageState extends State<TextStylePage> {
     switch (_selectedCategory) {
       case "Headline":
         return [
-          TextStyleCatalogItem("h1", (c) => c.h1()),
-          TextStyleCatalogItem("h2", (c) => c.h2()),
-          TextStyleCatalogItem("h3", (c) => c.h3()),
-          TextStyleCatalogItem("h4", (c) => c.h4()),
+          TextStyleCatalogItem("h1", (c) => c.h1(type: _selectedType)),
+          TextStyleCatalogItem("h2", (c) => c.h2(type: _selectedType)),
+          TextStyleCatalogItem("h3", (c) => c.h3(type: _selectedType)),
+          TextStyleCatalogItem("h4", (c) => c.h4(type: _selectedType)),
         ];
       case "Subtitle":
         return [
-          TextStyleCatalogItem("subtitle1", (c) => c.subtitle1()),
-          TextStyleCatalogItem("subtitle2", (c) => c.subtitle2()),
-          TextStyleCatalogItem("subtitle3", (c) => c.subtitle3()),
-          TextStyleCatalogItem("subtitle4", (c) => c.subtitle4()),
-          TextStyleCatalogItem("subtitle5", (c) => c.subtitle5()),
-          TextStyleCatalogItem("subtitle6", (c) => c.subtitle6()),
-          TextStyleCatalogItem("subtitle7", (c) => c.subtitle7()),
+          TextStyleCatalogItem("subtitle1", (c) => c.subtitle1(type: _selectedType)),
+          TextStyleCatalogItem("subtitle2", (c) => c.subtitle2(type: _selectedType)),
+          TextStyleCatalogItem("subtitle3", (c) => c.subtitle3(type: _selectedType)),
+          TextStyleCatalogItem("subtitle4", (c) => c.subtitle4(type: _selectedType)),
+          TextStyleCatalogItem("subtitle5", (c) => c.subtitle5(type: _selectedType)),
+          TextStyleCatalogItem("subtitle6", (c) => c.subtitle6(type: _selectedType)),
+          TextStyleCatalogItem("subtitle7", (c) => c.subtitle7(type: _selectedType)),
         ];
       case "Body":
         return [
-          TextStyleCatalogItem("body1", (c) => c.body1()),
-          TextStyleCatalogItem("body2", (c) => c.body2()),
-          TextStyleCatalogItem("body3", (c) => c.body3()),
-          TextStyleCatalogItem("body4", (c) => c.body4()),
-          TextStyleCatalogItem("body5", (c) => c.body5()),
-          TextStyleCatalogItem("body6", (c) => c.body6()),
+          TextStyleCatalogItem("body1", (c) => c.body1(type: _selectedType)),
+          TextStyleCatalogItem("body2", (c) => c.body2(type: _selectedType)),
+          TextStyleCatalogItem("body3", (c) => c.body3(type: _selectedType)),
+          TextStyleCatalogItem("body4", (c) => c.body4(type: _selectedType)),
+          TextStyleCatalogItem("body5", (c) => c.body5(type: _selectedType)),
+          TextStyleCatalogItem("body6", (c) => c.body6(type: _selectedType)),
         ];
       case "Caption":
         return [
-          TextStyleCatalogItem("caption1", (c) => c.caption1()),
-          TextStyleCatalogItem("caption2", (c) => c.caption2()),
-          TextStyleCatalogItem("caption3", (c) => c.caption3()),
-          TextStyleCatalogItem("caption4", (c) => c.caption4()),
-          TextStyleCatalogItem("caption5", (c) => c.caption5()),
+          TextStyleCatalogItem("caption1", (c) => c.caption1(type: _selectedType)),
+          TextStyleCatalogItem("caption2", (c) => c.caption2(type: _selectedType)),
+          TextStyleCatalogItem("caption3", (c) => c.caption3(type: _selectedType)),
+          TextStyleCatalogItem("caption4", (c) => c.caption4(type: _selectedType)),
+          TextStyleCatalogItem("caption5", (c) => c.caption5(type: _selectedType)),
         ];
       case "Button":
         return [
-          TextStyleCatalogItem("button1", (c) => c.button1()),
-          TextStyleCatalogItem("button2", (c) => c.button2()),
+          TextStyleCatalogItem("button1", (c) => c.button1(type: _selectedType)),
+          TextStyleCatalogItem("button2", (c) => c.button2(type: _selectedType)),
+        ];
+      case "Custom":
+        return [
+          TextStyleCatalogItem("neodgm", (c) => c.neodgm()),
         ];
       default:
         return const [];
