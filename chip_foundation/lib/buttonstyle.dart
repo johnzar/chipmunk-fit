@@ -16,6 +16,7 @@ enum FitButtonType {
 class FitButtonStyle {
   FitButtonStyle._();
 
+  static const defaultBorderRadius = 32.0;
   static const _disabledState = <WidgetState>{WidgetState.disabled};
 
   static _ResolvedButtonColors _resolve(
@@ -130,7 +131,9 @@ class FitButtonStyle {
       overlayColor: WidgetStateProperty.all(overlayColor ?? Colors.transparent),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius ?? 100.r),
+          borderRadius: BorderRadius.circular(
+            borderRadius ?? defaultBorderRadius.r,
+          ),
           side: side ?? BorderSide.none,
         ),
       ),

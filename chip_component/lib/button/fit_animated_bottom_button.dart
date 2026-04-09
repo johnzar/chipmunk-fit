@@ -125,7 +125,7 @@ class _FitAnimatedBottomButtonState extends State<FitAnimatedBottomButton>
       );
       return resolved.topLeft.x;
     }
-    return 100.r;
+    return FitButtonStyle.defaultBorderRadius.r;
   }
 
   double _resolveSafeBottomPadding(MediaQueryData query) {

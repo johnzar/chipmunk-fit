@@ -34,15 +34,15 @@ class FitBottomButton extends StatelessWidget {
     this.textStyle,
     this.backgroundColor,
     this.disabledBackgroundColor,
-    this.borderRadius = 50.0,
+    this.borderRadius = FitButtonStyle.defaultBorderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
     final effectiveBackgroundColor = backgroundColor ?? context.fitColors.main;
 
-    final effectiveDisabledColor =
-        disabledBackgroundColor ?? effectiveBackgroundColor.withValues(alpha: 0.5);
+    final effectiveDisabledColor = disabledBackgroundColor ??
+        effectiveBackgroundColor.withValues(alpha: 0.5);
 
     final effectiveTextStyle =
         textStyle ?? context.button1().copyWith(color: context.fitColors.grey0);

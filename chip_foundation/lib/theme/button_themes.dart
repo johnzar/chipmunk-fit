@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../buttonstyle.dart';
 import '../colors.dart';
 import '../textstyle.dart';
 
@@ -15,7 +16,10 @@ FilledButtonThemeData filledButtonTheme(
     style: FilledButton.styleFrom(
       minimumSize: Size.zero,
       padding: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100.r)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(FitButtonStyle.defaultBorderRadius.r),
+      ),
       backgroundColor: colors.main,
       foregroundColor: buttonForegroundColor ?? colors.staticBlack,
       disabledBackgroundColor: buttonDisabledBackgroundColor ?? colors.green50,
@@ -38,7 +42,10 @@ ElevatedButtonThemeData elevatedButtonTheme(
   return ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       minimumSize: const Size.fromHeight(56),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100.r)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(FitButtonStyle.defaultBorderRadius.r),
+      ),
       backgroundColor: colors.main,
       foregroundColor: buttonForegroundColor ?? colors.staticBlack,
       disabledBackgroundColor: buttonDisabledBackgroundColor ?? colors.green50,
@@ -57,7 +64,10 @@ OutlinedButtonThemeData outlinedButtonTheme(FitColors colors) {
     style: OutlinedButton.styleFrom(
       foregroundColor: colors.textPrimary,
       side: BorderSide(color: colors.grey400),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100.r)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(FitButtonStyle.defaultBorderRadius.r),
+      ),
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
     ).copyWith(
       overlayColor: WidgetStateProperty.all(Colors.transparent),
